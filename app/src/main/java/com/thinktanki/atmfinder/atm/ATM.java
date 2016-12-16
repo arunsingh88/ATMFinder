@@ -5,7 +5,7 @@ package com.thinktanki.atmfinder.atm;
  */
 public class ATM {
     private String atmName;
-    private String distance;
+    private Float distance;
     private String atmAddress;
     private double latitude;
     private double longitude;
@@ -18,11 +18,11 @@ public class ATM {
         this.atmName = atmName;
     }
 
-    public String getDistance() {
+    public Float getDistance() {
         return distance;
     }
 
-    public void setDistance(String distance) {
+    public void setDistance(Float distance) {
         this.distance = distance;
     }
 
