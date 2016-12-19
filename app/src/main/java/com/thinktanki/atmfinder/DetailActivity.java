@@ -12,19 +12,23 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.thinktanki.atmfinder.util.DataProvider;
+import com.thinktanki.atmfinder.util.DirectionJSONParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,16 +57,20 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         context = getApplicationContext();
 
         bundle = getIntent().getExtras();
         if (bundle != null) {
             nameATM = bundle.getString("ATM_NAME");
             addressATM = bundle.getString("ATM_ADDRESS");
-            destLat = bundle.getString("LATITUDE");
-            destLng = bundle.getString("LONGITUDE");
+            Double doubleLat = bundle.getDouble("LATITUDE");
+            Double doubleLng = bundle.getDouble("LONGITUDE");
+            destLat = doubleLat.toString();
+            destLng = doubleLng.toString();
         }
 
+        setTitle(nameATM);
         /*Initilize View*/
         detailMapview = (MapView) findViewById(R.id.detailMapView);
         atmName = (TextView) findViewById(R.id.atmName);
@@ -91,11 +99,20 @@ public class DetailActivity extends AppCompatActivity {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setMapToolbarEnabled(true);
-                destLat = "12.845872";
-                destLng = "77.661911";
                 new ATMRoute().execute(currentLat, currentLng, destLat, destLng);
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private class ATMRoute extends AsyncTask<String, Void, String> {
@@ -140,12 +157,23 @@ public class DetailActivity extends AppCompatActivity {
 
             currentPosition = new LatLng(Double.parseDouble(currentLat), Double.parseDouble(currentLng));
             destPosition = new LatLng(Double.parseDouble(destLat), Double.parseDouble(destLng));
-            CameraPosition cameraPosition = new CameraPosition.Builder().target(currentPosition).zoom(15).build();
 
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-            mMap.addMarker(new MarkerOptions().position(currentPosition).title("ME").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-            mMap.addMarker(new MarkerOptions().position(destPosition).title(nameATM).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).snippet(addressATM));
+            List<Marker> marker = new ArrayList<Marker>();
+            marker.add(mMap.addMarker(new MarkerOptions().position(currentPosition).title("ME").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))));
+            marker.add(mMap.addMarker(new MarkerOptions().position(destPosition).title(nameATM).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).snippet(addressATM)));
 
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (Marker markers : marker) {
+                builder.include(markers.getPosition());
+            }
+            LatLngBounds bounds = builder.build();
+            int width = getResources().getDisplayMetrics().widthPixels;
+            int height = getResources().getDisplayMetrics().heightPixels;
+            int padding = (int) (width * 0.30);
+
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+            mMap.moveCamera(cameraUpdate);
             atmName.setText(nameATM);
             atmAddress.setText(addressATM);
             atmDistance.setText(distance);

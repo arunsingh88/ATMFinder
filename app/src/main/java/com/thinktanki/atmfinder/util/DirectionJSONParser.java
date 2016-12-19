@@ -1,4 +1,4 @@
-package com.thinktanki.atmfinder;
+package com.thinktanki.atmfinder.util;
 
 /**
  * Created by aruns512 on 13/06/2016.

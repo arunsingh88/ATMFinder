@@ -5,7 +5,9 @@ import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -17,19 +19,19 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.thinktanki.atmfinder.DataProvider;
+import com.thinktanki.atmfinder.util.DataProvider;
 import com.thinktanki.atmfinder.R;
 
 import org.json.JSONArray;
@@ -41,7 +43,7 @@ import java.util.List;
 
 public class ATMmapView extends Fragment {
     private final String TAG = ATMmapView.class.getSimpleName();
-    private String RADIUS = "2000";
+    private String RADIUS;
     private int noOfATM;
     private String atmName;
     private String atmAddress;
@@ -54,6 +56,7 @@ public class ATMmapView extends Fragment {
     private SeekBar seekBar;
     private TextView radiusOfArea;
     private DataProvider dataProvider = new DataProvider();
+    private SharedPreferences sharedPreferences;
 
     public ATMmapView() {
         atmList = new ArrayList<ATM>();
@@ -63,11 +66,21 @@ public class ATMmapView extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_atmmap_view, container, false);
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        latitude = sharedPreferences.getString("LATITUDE", null);
+        longitude = sharedPreferences.getString("LONGITUDE", null);
+        RADIUS=sharedPreferences.getString("RADIUS","1000");
+
         mapView = (MapView) rootView.findViewById(R.id.mapView);
         seekBar = (SeekBar) rootView.findViewById(R.id.seekBar);
-        seekBar.setProgress(2);
+        seekBar.setProgress(Integer.parseInt(RADIUS));
         radiusOfArea = (TextView) rootView.findViewById(R.id.textView);
 
+        seekBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            seekBar.getThumb().setColorFilter(getResources().getColor(R.color.colorPrimaryDark), PorterDuff.Mode.SRC_IN);
+        }
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressChanged = 0;
 
@@ -84,18 +97,20 @@ public class ATMmapView extends Fragment {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                RADIUS = String.valueOf(progressChanged * 1000);
 
-                String radius = String.valueOf(progressChanged * 1000);
-                new ATMData().execute(latitude, longitude, radius);
-                //radiusOfArea.setText(seekBar);
+                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("RADIUS", RADIUS);
+                editor.commit();
 
+                new ATMData().execute(latitude, longitude, RADIUS);
             }
         });
         mapView.onCreate(savedInstanceState);
         mapView.onResume();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        latitude = sharedPreferences.getString("LATITUDE", null);
-        longitude = sharedPreferences.getString("LONGITUDE", null);
+
+
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
         } catch (Exception e) {
@@ -171,13 +186,11 @@ public class ATMmapView extends Fragment {
             Log.v(TAG + "ATMLIST", atmList.toString());
             int noOfATM = atmList.size();
             mMap.clear();
-            LatLng currentPos = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
 
-            CircleOptions circleOptions = new CircleOptions().center(currentPos).radius(1000).strokeWidth(2)
+            LatLng currentPos = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
+            CircleOptions circleOptions = new CircleOptions().center(currentPos).radius(Double.parseDouble(RADIUS)).strokeWidth(2)
                     .strokeColor(Color.BLUE);
             mMap.addCircle(circleOptions);
-            CameraPosition cameraPosition = new CameraPosition.Builder().target(currentPos).zoom(14).build();
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             mMap.addMarker(new MarkerOptions().position(currentPos).title("ME").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
 
             List<Marker> markers = new ArrayList<Marker>();
@@ -186,18 +199,24 @@ public class ATMmapView extends Fragment {
 
                 String title = atmList.get(i).getAtmName();
                 String address = atmList.get(i).getAtmAddress();
-                mMap.addMarker(new MarkerOptions().position(marker).title(title).snippet(address));
+                markers.add(mMap.addMarker(new MarkerOptions().position(marker).title(title).snippet(address)));
 
             }
 
-           /* LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
             for (Marker marker : markers) {
                 builder.include(marker.getPosition());
             }
-            LatLngBounds bounds = builder.build();
-            int padding = 0; // offset from edges of the map in pixels
-            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-            mMap.moveCamera(cu);*/
+
+            if (markers.size() > 0) {
+                LatLngBounds bounds = builder.build();
+                int width = getResources().getDisplayMetrics().widthPixels;
+                int height = getResources().getDisplayMetrics().heightPixels;
+                int padding = (int) (width * 0.10);
+
+                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+                mMap.moveCamera(cu);
+            }
 
         }
     }

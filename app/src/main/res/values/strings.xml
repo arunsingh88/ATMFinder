@@ -3,4 +3,23 @@
      <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
         AIzaSyD3hOeAeBE30y2Hlbg-_Id30jPMBZ2Bw1I
     </string>
+    <!--Admob ad details-->
+    <string name="admob_app_id">ca-app-pub-6264665505773691~8901151769</string>
+    <string name="banner_home_footer">ca-app-pub-6264665505773691/1377884962</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="about_app_desc">
+    <![CDATA[
+    <b><font color="#ebebeb">About</font color></b><br>
+    DailyNews gets you the latest news updates in 6 different language.<br>
+    <b>हिन्दी,English,தமிழ்,తెలుగు,മലയാളം,ಕನ್ನಡ</b><br>
+    Without you having to go through all those lengthy newspapers and those loud and noisy news channels.<br>
+    Just install DailyNews and be the most updated with just a tap away.<br><br>
+    <b><font color="#ebebeb">Version:</b></font color>1.0.1<br>
+    ]]>
+    </string>
 </resources>

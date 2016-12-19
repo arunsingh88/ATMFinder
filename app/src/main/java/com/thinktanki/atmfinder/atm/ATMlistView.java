@@ -6,15 +6,22 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import com.thinktanki.atmfinder.DataProvider;
+import com.thinktanki.atmfinder.util.DataProvider;
 import com.thinktanki.atmfinder.R;
 import com.thinktanki.atmfinder.listview.ATMAdapter;
 import com.thinktanki.atmfinder.listview.RecyclerViewDecoration;
@@ -26,7 +33,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ATMlistView extends Fragment {
+public class ATMlistView extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener {
     private final String TAG = ATMlistView.class.getSimpleName();
     private List<ATM> atmList;
     private RecyclerView recyclerView;
@@ -37,9 +44,11 @@ public class ATMlistView extends Fragment {
     private String atmName, atmAddress;
     private Float distanceInKms;
     private int noOfATMs;
-    private String RADIUS = "2000";
+    private String RADIUS;
     private SharedPreferences sharedPreferences;
     private ATM atmObj;
+    private SearchView searchView;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public ATMlistView() {
     }
@@ -56,9 +65,11 @@ public class ATMlistView extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_atmlist_view, container, false);
 
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         atmList = new ArrayList<ATM>();
-        atmAdapter = new ATMAdapter(atmList,getActivity());
+        atmAdapter = new ATMAdapter(atmList, getActivity());
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -66,8 +77,35 @@ public class ATMlistView extends Fragment {
         recyclerView.addItemDecoration(new RecyclerViewDecoration(getActivity(), LinearLayoutManager.VERTICAL));
 
         recyclerView.setAdapter(atmAdapter);
+        atmAdapter.notifyDataSetChanged();
         prepareATMList();
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.listview_fragment_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                Toast.makeText(getActivity(), "search click", Toast.LENGTH_SHORT).show();
+                searchView.setOnQueryTextListener(this);
+                return true;
+
+            case R.id.action_sort:
+                //do something
+                Toast.makeText(getActivity(), "clcik", Toast.LENGTH_LONG).show();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void prepareATMList() {
@@ -75,10 +113,28 @@ public class ATMlistView extends Fragment {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         latitude = sharedPreferences.getString("LATITUDE", null);
         longitude = sharedPreferences.getString("LONGITUDE", null);
+        RADIUS=sharedPreferences.getString("RADIUS","1000");
 
         Log.v(TAG + " Current Location:", latitude + longitude);
 
         new ATMData().execute(latitude, longitude, RADIUS);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        Toast.makeText(getActivity(), "onQueryTextSubmit", Toast.LENGTH_SHORT).show();
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        Toast.makeText(getActivity(), "onQueryTextChange", Toast.LENGTH_SHORT).show();
+        return false;
+    }
+
+    @Override
+    public void onRefresh() {
+        prepareATMList();
     }
 
     private class ATMData extends AsyncTask<String, Void, String> {
@@ -105,10 +161,16 @@ public class ATMlistView extends Fragment {
             super.onPostExecute(result);
             pd.dismiss();
             addToATMList(result);
+            // stopping swipe refresh
+            swipeRefreshLayout.setRefreshing(false);
+            // avLoadingIndicatorView.hide();
         }
     }
 
     private void addToATMList(String result) {
+        if (atmList.size() > 0) {
+            atmList.clear();
+        }
         if (result != null) {
             try {
                 JSONObject jsonObj = new JSONObject(result);
@@ -126,11 +188,15 @@ public class ATMlistView extends Fragment {
                     atmObj = new ATM();
                     atmObj.setAtmName(atmName);
                     atmObj.setAtmAddress(atmAddress);
+                    atmObj.setLatitude(Double.parseDouble(lat_dest));
+                    atmObj.setLongitude(Double.parseDouble(lng_dest));
+
                     distanceInKms = dataProvider.distanceInKm(latitude, longitude, lat_dest, lng_dest);
                     atmObj.setDistance(distanceInKms);
 
                     /*Adding ATM Object to ATM list*/
-                    atmList.add(atmObj);
+                    if (!atmList.contains(atmObj))
+                        atmList.add(atmObj);
                 }
                 atmAdapter.notifyDataSetChanged();
                 Log.v(TAG + " MAP_ARRAY", atmList.toString());

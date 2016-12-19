@@ -1,55 +1,96 @@
 package com.thinktanki.atmfinder;
 
+import android.os.Handler;;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.thinktanki.atmfinder.atm.ATMlistView;
 import com.thinktanki.atmfinder.atm.ATMmapView;
+import com.thinktanki.atmfinder.util.AndroidUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private String TAG = MainActivity.class.getSimpleName();
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private LinearLayout relativeLayout;
+    private AdView adView;
+    private final Handler refreshHandler = new Handler();
+    private final Runnable refreshRunnable = new RefreshRunnable();
+    private AdRequest adRequest;
+    private int REFRESH_RATE_IN_SECONDS = 5;
+    private final int MAP_VIEW = 1;
+    private final int LIST_VIEW = 0;
+    private AndroidUtil androidUtil;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
         toolbar.setTitle(getResources().getString(R.string.app_name));
-        relativeLayout = (LinearLayout) findViewById(R.id.main_activity);
+        adView = (AdView) findViewById(R.id.adViewActivity);
+        adView.setVisibility(View.GONE);
+        // Initialize the Mobile Ads SDK.
+        MobileAds.initialize(this, getResources().getString(R.string.admob_app_id));
+        adRequest = new AdRequest.Builder().addTestDevice("196FCE962C3DC7551A19FD25FC8543D0").build();
+
+        adView.loadAd(adRequest);
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdFailedToLoad(int i) {
+                super.onAdFailedToLoad(i);
+                adView.setVisibility(View.GONE);
+                refreshHandler.removeCallbacks(refreshRunnable);
+                refreshHandler.postDelayed(refreshRunnable, REFRESH_RATE_IN_SECONDS * 1000);
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                adView.setVisibility(View.VISIBLE);
+            }
+        });
+
+        androidUtil = new AndroidUtil(MainActivity.this);
+
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_activity_menu, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
 
-
-        return super.onOptionsItemSelected(item); // important line
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -57,6 +98,50 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(new ATMlistView(), "LIST VIEW");
         adapter.addFragment(new ATMmapView(), "MAP VIEW");
         viewPager.setAdapter(adapter);
+    }
+
+    private int getItem(int i) {
+        return viewPager.getCurrentItem() + i;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.map_view) {
+            viewPager.setCurrentItem(MAP_VIEW, true);
+        } else if (id == R.id.list_view) {
+            viewPager.setCurrentItem(LIST_VIEW, true);
+        } else if (id == R.id.search_location) {
+
+        } else if (id == R.id.nav_sort) {
+
+        } else if (id == R.id.nav_radius) {
+
+        } else if (id == R.id.nav_aboutApp) {
+            LinearLayout layout = (LinearLayout) MainActivity.this.findViewById(R.id.main_activity);
+            androidUtil.aboutApp(layout);
+
+        } else if (id == R.id.nav_share) {
+            androidUtil.shareApp();
+
+        } else if (id == R.id.nav_rateApp) {
+            androidUtil.rateApp();
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -85,6 +170,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
+        }
+    }
+
+    private class RefreshRunnable implements Runnable {
+        @Override
+        public void run() {
+            adView.loadAd(adRequest);
         }
     }
 }

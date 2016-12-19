@@ -1,0 +1,10 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <item name="ic_menu_list" type="drawable">@drawable/ic_view_list_white_24dp</item>
+    <item name="ic_menu_location" type="drawable">@drawable/ic_my_location_white_24dp</item>
+    <item name="ic_menu_map" type="drawable">@drawable/ic_place_white_24dp</item>
+    <item name="ic_menu_about" type="drawable">@drawable/ic_receipt_white_24dp</item>
+    <item name="ic_menu_share" type="drawable">@drawable/ic_share_white_24dp</item>
+    <item name="ic_menu_rate" type="drawable">@drawable/ic_thumb_up_white_24dp</item>
+    <item name="ic_menu_radius" type="drawable">@drawable/ic_tune_white_24dp</item>
+    <item name="ic_menu_sort" type="drawable">@drawable/ic_sort_white_24dp</item>
+</resources>
