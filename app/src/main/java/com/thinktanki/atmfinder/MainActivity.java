@@ -1,6 +1,9 @@
 package com.thinktanki.atmfinder;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -13,6 +16,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -22,6 +26,12 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.maps.model.LatLng;
 import com.thinktanki.atmfinder.atm.ATMlistView;
 import com.thinktanki.atmfinder.atm.ATMmapView;
 import com.thinktanki.atmfinder.util.AndroidUtil;
@@ -43,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final int MAP_VIEW = 1;
     private final int LIST_VIEW = 0;
     private AndroidUtil androidUtil;
+    private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,10 +125,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.list_view) {
             viewPager.setCurrentItem(LIST_VIEW, true);
         } else if (id == R.id.search_location) {
+            androidUtil.searchByLocation();
 
         } else if (id == R.id.nav_sort) {
 
         } else if (id == R.id.nav_radius) {
+            androidUtil.changeRadius();
 
         } else if (id == R.id.nav_aboutApp) {
             LinearLayout layout = (LinearLayout) MainActivity.this.findViewById(R.id.main_activity);
@@ -177,6 +191,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void run() {
             adView.loadAd(adRequest);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(this, data);
+
+                LatLng placeLatLng = place.getLatLng();
+
+                Double lat = placeLatLng.latitude;
+                Double lng = placeLatLng.longitude;
+
+                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("LATITUDE", lat.toString());
+                editor.putString("LONGITUDE", lng.toString());
+                editor.commit();
+
+                Log.i(TAG, "Place: " + place.getName());
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
         }
     }
 }

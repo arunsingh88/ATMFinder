@@ -9,21 +9,31 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.15"
+        android:padding="5dp"
         android:orientation="vertical"
         android:paddingLeft="10dp">
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold" />
-
-        <SeekBar
-            android:id="@+id/seekBar"
+            android:textStyle="bold"
+            android:paddingLeft="15dp"
+            android:paddingTop="10dp"
+            android:layout_gravity="center" />
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="10" />
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="10" />
+        </FrameLayout>
     </LinearLayout>
 
     <FrameLayout

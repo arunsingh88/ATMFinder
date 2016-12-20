@@ -33,7 +33,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ATMlistView extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener {
+public class ATMlistView extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener, SharedPreferences.OnSharedPreferenceChangeListener
+{
     private final String TAG = ATMlistView.class.getSimpleName();
     private List<ATM> atmList;
     private RecyclerView recyclerView;
@@ -57,6 +58,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
     }
 
     @Override
@@ -108,9 +110,21 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
     private void prepareATMList() {
         /*Getting the current location*/
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         latitude = sharedPreferences.getString("LATITUDE", null);
         longitude = sharedPreferences.getString("LONGITUDE", null);
         RADIUS=sharedPreferences.getString("RADIUS","1000");
@@ -135,6 +149,18 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
     @Override
     public void onRefresh() {
         prepareATMList();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+       /* if(key.equalsIgnoreCase("RADIUS"))
+        {
+            prepareATMList();
+            //Toast.makeText(getActivity(),"New Radius: "+sharedPreferences.getString(key,"hll"),Toast.LENGTH_LONG).show();
+        }*/
+
+        prepareATMList();
+
     }
 
     private class ATMData extends AsyncTask<String, Void, String> {

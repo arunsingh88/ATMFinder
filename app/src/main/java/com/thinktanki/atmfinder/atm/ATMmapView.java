@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -41,7 +42,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ATMmapView extends Fragment {
+public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     private final String TAG = ATMmapView.class.getSimpleName();
     private String RADIUS;
     private int noOfATM;
@@ -70,12 +71,13 @@ public class ATMmapView extends Fragment {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         latitude = sharedPreferences.getString("LATITUDE", null);
         longitude = sharedPreferences.getString("LONGITUDE", null);
-        RADIUS=sharedPreferences.getString("RADIUS","1000");
+        RADIUS = sharedPreferences.getString("RADIUS", "1000");
 
         mapView = (MapView) rootView.findViewById(R.id.mapView);
         seekBar = (SeekBar) rootView.findViewById(R.id.seekBar);
-        seekBar.setProgress(Integer.parseInt(RADIUS));
+        seekBar.setProgress(Integer.parseInt(RADIUS) / 1000);
         radiusOfArea = (TextView) rootView.findViewById(R.id.textView);
+        radiusOfArea.setText("ATMs within the range of " + Integer.parseInt(RADIUS) / 1000 + " kms.");
 
         seekBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -86,7 +88,7 @@ public class ATMmapView extends Fragment {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                radiusOfArea.setText("ATMs within range of " + progress + " kms.");
+                radiusOfArea.setText("ATMs within the range of " + progress + " kms.");
                 progressChanged = progress;
             }
 
@@ -103,8 +105,6 @@ public class ATMmapView extends Fragment {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("RADIUS", RADIUS);
                 editor.commit();
-
-                new ATMData().execute(latitude, longitude, RADIUS);
             }
         });
         mapView.onCreate(savedInstanceState);
@@ -129,7 +129,8 @@ public class ATMmapView extends Fragment {
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setMapToolbarEnabled(true);
 
-                new ATMData().execute(latitude, longitude, RADIUS);
+                prepareATMlist();
+                //new ATMData().execute(latitude, longitude, RADIUS);
             }
         });
 
@@ -141,18 +142,45 @@ public class ATMmapView extends Fragment {
     public void onResume() {
         super.onResume();
         mapView.onResume();
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
+        // sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        prepareATMlist();
+    }
+
+    private void prepareATMlist() {
+
+        RADIUS = sharedPreferences.getString("RADIUS", "1000");
+        latitude = sharedPreferences.getString("LATITUDE", null);
+        longitude = sharedPreferences.getString("LONGITUDE", null);
+
+        new ATMData().execute(latitude, longitude, RADIUS);
+        seekBar.setProgress(Integer.parseInt(RADIUS) / 1000);
+        radiusOfArea.setText("ATMs within the range of " + Integer.parseInt(RADIUS) / 1000 + " kms.");
     }
 
     private class ATMData extends AsyncTask<String, Void, String> {
