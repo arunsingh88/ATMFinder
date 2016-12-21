@@ -6,6 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.thinktanki.atmfinder.DetailActivity;
@@ -13,18 +15,25 @@ import com.thinktanki.atmfinder.R;
 import com.thinktanki.atmfinder.atm.ATM;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by aruns512 on 12/12/2016.
  */
 
-public class ATMAdapter extends RecyclerView.Adapter<ATMAdapter.MyViewHolder> {
+public class ATMAdapter extends RecyclerView.Adapter<ATMAdapter.MyViewHolder> implements Filterable{
     private List<ATM> atmList;
     private Context context;
+    private final List<ATM> userList;
+    private UserFilter userFilter;
+
+    private final List<ATM> filteredUserList;
 
     public ATMAdapter(List<ATM> atmList,Context context) {
         this.atmList = atmList;
+        this.userList =new ArrayList<>();
+        this.filteredUserList = new ArrayList<>();
         this.context=context;
     }
 
@@ -32,6 +41,50 @@ public class ATMAdapter extends RecyclerView.Adapter<ATMAdapter.MyViewHolder> {
         atmList = new ArrayList<>();
         atmList.addAll(atmLists);
         notifyDataSetChanged();
+    }
+
+    private static class UserFilter extends Filter {
+
+        private final ATMAdapter adapter;
+
+        private final List<ATM> originalList;
+
+        private final List<ATM> filteredList;
+
+        private UserFilter(ATMAdapter adapter, List<ATM> originalList) {
+            super();
+            this.adapter = adapter;
+            this.originalList = new LinkedList<>(originalList);
+            this.filteredList = new ArrayList<>();
+        }
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            filteredList.clear();
+            final FilterResults results = new FilterResults();
+
+            if (constraint.length() == 0) {
+                filteredList.addAll(originalList);
+            } else {
+                final String filterPattern = constraint.toString().toLowerCase().trim();
+
+                for (final ATM user : originalList) {
+                    if (user.getAtmName().contains(filterPattern)) {
+                        filteredList.add(user);
+                    }
+                }
+            }
+            results.values = filteredList;
+            results.count = filteredList.size();
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            adapter.filteredUserList.clear();
+            adapter.filteredUserList.addAll((ArrayList<ATM>) results.values);
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -55,6 +108,12 @@ public class ATMAdapter extends RecyclerView.Adapter<ATMAdapter.MyViewHolder> {
         return atmList.size();
     }
 
+    @Override
+    public Filter getFilter() {
+        if(userFilter == null)
+            userFilter = new UserFilter(this, userList);
+        return userFilter;
+    }
 
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

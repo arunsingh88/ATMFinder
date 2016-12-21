@@ -159,6 +159,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
 
     @Override
     public boolean onQueryTextSubmit(String query) {
+        atmAdapter.getFilter().filter(query);
         Toast.makeText(getActivity(), "onQueryTextSubmit", Toast.LENGTH_SHORT).show();
         return false;
     }

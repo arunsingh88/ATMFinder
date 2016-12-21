@@ -1,21 +1,31 @@
 package com.thinktanki.atmfinder.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -27,9 +37,16 @@ import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.thinktanki.atmfinder.BuildConfig;
 import com.thinktanki.atmfinder.R;
 import com.thinktanki.atmfinder.atm.ATM;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -43,6 +60,9 @@ public class AndroidUtil {
     private PopupWindow popupWindow;
     private Intent shareApp;
     private SharedPreferences sharedPreferences;
+    private String response;
+    private HttpURLConnection urlConnection;
+    private String TAG = DataProvider.class.getSimpleName();
     private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
     public AndroidUtil(Activity context) {
@@ -186,6 +206,152 @@ public class AndroidUtil {
         } else {
             gps.showSettingsAlert();
         }
+    }
+    /*Change Status Bar Color*/
+    public void changeStatusBarColor() {
+        if (Build.VERSION.SDK_INT >= 21) {
+            context.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = context.getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+        }
+    }
+
+    public String readATMData(InputStream stream) {
+
+        try {
+            final int bufferSize = 1024;
+            final char[] buffer = new char[bufferSize];
+            final StringBuilder out = new StringBuilder();
+            Reader in = new InputStreamReader(stream, "UTF-8");
+            for (; ; ) {
+                int rsz = in.read(buffer, 0, buffer.length);
+                if (rsz < 0)
+                    break;
+                out.append(buffer, 0, rsz);
+            }
+
+            response = out.toString();
+        } catch (Exception e) {
+            Log.e("HELPER_CLASS", e.getMessage());
+        }
+        return response;
+    }
+
+    public String ATMData(String latitude, String longitude, String radius) {
+        String atmList = null;
+        final String GOOGLE_PLACE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+        final String RADIUS = "radius";
+        final String API_KEY = "key";
+        final String CURRENT_LOCATION = "location";
+        final String TYPE = "type";
+        try {
+            Uri builtUri = Uri.parse(GOOGLE_PLACE_URL).buildUpon()
+                    .appendQueryParameter(CURRENT_LOCATION, latitude + "," + longitude)
+                    .appendQueryParameter(RADIUS, radius)
+                    .appendQueryParameter(TYPE, "atm")
+                    .appendQueryParameter(API_KEY, BuildConfig.GOOGLE_PLACE_API_KEY)
+                    .build();
+
+            URL url = new URL(builtUri.toString());
+            Log.v(TAG + "PLACE_API_URL", url.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setReadTimeout(10000 /* milliseconds */);
+            urlConnection.setConnectTimeout(15000 /* milliseconds */);
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+            // Starts the query
+            urlConnection.connect();
+            int response = urlConnection.getResponseCode();
+            Log.d(TAG + "ATMData", "The response is: " + response);
+            InputStream in = urlConnection.getInputStream();
+            // Convert the InputStream into a string
+            atmList = readATMData(in);
+            return atmList;
+        } catch (Exception e) {
+            Log.e(TAG + "PLACE_API_CALL", e.getMessage());
+        } finally {
+            urlConnection.disconnect();
+        }
+
+        return atmList;
+    }
+
+    public Float distanceInKm(String lat_origin, String lng_origin, String lat_dest, String lng_dest) {
+        Location origin = new Location("ORIGIN");
+        origin.setLatitude(Double.parseDouble(lat_origin));
+        origin.setLongitude(Double.parseDouble(lng_origin));
+
+        Location destination = new Location("DESTINATION");
+        destination.setLatitude(Double.parseDouble(lat_dest));
+        destination.setLongitude(Double.parseDouble(lng_dest));
+
+        Float distanceInKm = origin.distanceTo(destination) / 1000;
+        distanceInKm = Float.parseFloat(String.format("%.2f", distanceInKm));
+        return distanceInKm;
+    }
+
+    public String mapRouteData(String lat_origin, String lng_origin, String lat_dest, String lng_dest) {
+        final String GOOGLE_DISTANCE_URL = "http://maps.google.com/maps/api/directions/json?";
+        final String ORIGIN = "origin";
+        final String DESTINATION = "destination";
+        final String SENSOR = "sensor";
+        final String UNITS = "units";
+
+        try {
+            Uri builtUri = Uri.parse(GOOGLE_DISTANCE_URL).buildUpon()
+                    .appendQueryParameter(ORIGIN, lat_origin + "," + lng_origin)
+                    .appendQueryParameter(DESTINATION, lat_dest + "," + lng_dest)
+                    .appendQueryParameter(SENSOR, "false")
+                    .appendQueryParameter(UNITS, "metric")
+                    .build();
+
+            URL url = new URL(builtUri.toString());
+            Log.v(TAG + "DIRECTION URL", url.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setReadTimeout(10000 /* milliseconds */);
+            urlConnection.setConnectTimeout(15000 /* milliseconds */);
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+            // Starts the query
+            urlConnection.connect();
+            int responseCode = urlConnection.getResponseCode();
+            Log.d(TAG + "DIRECTION RESPONSE", "The response is: " + responseCode);
+            InputStream is = urlConnection.getInputStream();
+            response = readATMData(is);
+        } catch (Exception e) {
+            Log.e(TAG + "DIRECTION_EXCEPTION", e.getMessage());
+        }
+        return response;
+    }
+
+    public boolean checkNetworkStatus() {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
+    }
+
+    /*this funciton will check whether particular permission is granted or not*/
+    public boolean checkAndRequestPermissions(int REQUEST_ID_MULTIPLE_PERMISSIONS ) {
+        int preciseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+        int locationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
+        if (preciseLocation != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(context, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
     }
 
 

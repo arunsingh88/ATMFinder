@@ -1,9 +1,5 @@
 package com.thinktanki.atmfinder.util;
 
-/**
- * Created by aruns512 on 15/12/2016.
- */
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Service;
@@ -24,9 +20,6 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-/**
- * Created by ANQ on 8/8/2016.
- */
 
 public class TrackGPS extends Service implements LocationListener {
 
