@@ -12,8 +12,10 @@
     </string>
 
     <!--Admob ad details-->
-    <string name="admob_app_id">ca-app-pub-6264665505773691~8901151769</string>
-    <string name="banner_home_footer">ca-app-pub-6264665505773691/1377884962</string>
+    <string name="admob_app_id">ca-app-pub-6264665505773691~4596985763</string>
+    <string name="banner_home_footer">ca-app-pub-6264665505773691/6073718967</string>
+    <string name="atm_detail_page_footer">ca-app-pub-6264665505773691/7550452167</string>
+
 
     <!--Dialog box for sorting-->
     <array name="sortArrayList">

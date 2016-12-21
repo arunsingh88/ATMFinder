@@ -118,8 +118,8 @@ public class DetailActivity extends AppCompatActivity {
         adView = (AdView) findViewById(R.id.adViewActivity);
         adView.setVisibility(View.GONE);
         // Initialize the Mobile Ads SDK.
-        MobileAds.initialize(this, getResources().getString(R.string.admob_app_id));
-        adRequest = new AdRequest.Builder().addTestDevice("196FCE962C3DC7551A19FD25FC8543D0").build();
+        MobileAds.initialize(this, getResources().getString(R.string.atm_detail_page_footer));
+        adRequest = new AdRequest.Builder()/*.addTestDevice("196FCE962C3DC7551A19FD25FC8543D0")*/.build();
 
         adView.loadAd(adRequest);
         adView.setAdListener(new AdListener() {
