@@ -12,7 +12,8 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:padding="5dp">
+        android:padding="5dp"
+        >
 
         <ImageView
             android:layout_width="wrap_content"

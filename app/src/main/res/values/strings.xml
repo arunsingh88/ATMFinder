@@ -1,17 +1,28 @@
 <resources>
     <string name="app_name">ATMFinder</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+    <string name="sort_dialog_box_title">Filter your search</string>
+    <string name="list_view">LIST VIEW</string>
+    <string name="map_view">MAP VIEW</string>
+
      <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
         AIzaSyD3hOeAeBE30y2Hlbg-_Id30jPMBZ2Bw1I
     </string>
+
     <!--Admob ad details-->
     <string name="admob_app_id">ca-app-pub-6264665505773691~8901151769</string>
     <string name="banner_home_footer">ca-app-pub-6264665505773691/1377884962</string>
-    <string name="title_activity_main2">Main2Activity</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <!--Dialog box for sorting-->
+    <array name="sortArrayList">
+        <item>Nearest ATM First</item>
+        <item>Farthest ATM First</item>
+        <item>Alphabetical Order</item>
+        <item>Reverse Alphabetical Order</item>
+    </array>
 
-    <string name="action_settings">Settings</string>
     <string name="about_app_desc">
     <![CDATA[
     <b><font color="#ebebeb">About</font color></b><br>

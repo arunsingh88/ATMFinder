@@ -28,6 +28,11 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.thinktanki.atmfinder.R;
+import com.thinktanki.atmfinder.atm.ATM;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by aruns512 on 19/12/2016.
@@ -168,4 +173,20 @@ public class AndroidUtil {
             }
         });
     }
+
+    public void updateCurrentLocation() {
+        TrackGPS gps = new TrackGPS(context);
+        if (gps.canGetLocation()) {
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("LATITUDE", String.valueOf(gps.getLatitude()));
+            editor.putString("LONGITUDE", String.valueOf(gps.getLongitude()));
+            editor.commit();
+        } else {
+            gps.showSettingsAlert();
+        }
+    }
+
+
 }

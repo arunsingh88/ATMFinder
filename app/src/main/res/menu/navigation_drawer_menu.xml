@@ -15,6 +15,14 @@
             android:icon="@drawable/ic_menu_location"
             android:title="Search By Location" />
         <item
+            android:id="@+id/search_pincode"
+            android:icon="@drawable/ic_search_pincode"
+            android:title="Search By Pincode" />
+        <item
+            android:id="@+id/near_me"
+            android:icon="@drawable/ic_near_me"
+            android:title="Near me" />
+        <item
             android:id="@+id/nav_radius"
             android:icon="@drawable/ic_menu_radius"
             android:title="Range" />

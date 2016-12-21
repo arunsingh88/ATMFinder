@@ -49,4 +49,5 @@ public class ATM {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
 }

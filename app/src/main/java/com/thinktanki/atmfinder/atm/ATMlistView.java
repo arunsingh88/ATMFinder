@@ -1,6 +1,8 @@
 package com.thinktanki.atmfinder.atm;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.thinktanki.atmfinder.util.AndroidUtil;
 import com.thinktanki.atmfinder.util.DataProvider;
 import com.thinktanki.atmfinder.R;
 import com.thinktanki.atmfinder.listview.ATMAdapter;
@@ -31,10 +35,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class ATMlistView extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener, SharedPreferences.OnSharedPreferenceChangeListener
-{
+public class ATMlistView extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener, SharedPreferences.OnSharedPreferenceChangeListener {
     private final String TAG = ATMlistView.class.getSimpleName();
     private List<ATM> atmList;
     private RecyclerView recyclerView;
@@ -50,10 +56,28 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
     private ATM atmObj;
     private SearchView searchView;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private int previousSelected = -1;
+    private ATMListInterface atmListInterface;
 
     public ATMlistView() {
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            atmListInterface = (ATMListInterface) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement ATMListInterface");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        atmListInterface = null;
+        super.onDetach();
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +128,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
 
             case R.id.action_sort:
                 //do something
-                Toast.makeText(getActivity(), "clcik", Toast.LENGTH_LONG).show();
+                createDialogBox();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -127,7 +151,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
         /*Getting the current location*/
         latitude = sharedPreferences.getString("LATITUDE", null);
         longitude = sharedPreferences.getString("LONGITUDE", null);
-        RADIUS=sharedPreferences.getString("RADIUS","1000");
+        RADIUS = sharedPreferences.getString("RADIUS", "1000");
 
         Log.v(TAG + " Current Location:", latitude + longitude);
 
@@ -153,14 +177,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-       /* if(key.equalsIgnoreCase("RADIUS"))
-        {
-            prepareATMList();
-            //Toast.makeText(getActivity(),"New Radius: "+sharedPreferences.getString(key,"hll"),Toast.LENGTH_LONG).show();
-        }*/
-
         prepareATMList();
-
     }
 
     private class ATMData extends AsyncTask<String, Void, String> {
@@ -224,6 +241,12 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
                     if (!atmList.contains(atmObj))
                         atmList.add(atmObj);
                 }
+                Collections.sort(atmList, new Comparator<ATM>() {
+                    @Override
+                    public int compare(ATM atm1, ATM atm2) {
+                        return atm1.getDistance().compareTo(atm2.getDistance());
+                    }
+                });
                 atmAdapter.notifyDataSetChanged();
                 Log.v(TAG + " MAP_ARRAY", atmList.toString());
 
@@ -233,5 +256,69 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
                 Log.e(TAG, e.getMessage());
             }
         }
+    }
+
+    public void createDialogBox() {
+        final String sort[] = getResources().getStringArray(R.array.sortArrayList);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        // Set the dialog title
+        builder.setTitle(getResources().getString(R.string.sort_dialog_box_title))
+                .setSingleChoiceItems(sort, previousSelected, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        previousSelected = which;
+                    }
+                })
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (previousSelected == 0) {
+                            Collections.sort(atmList, new Comparator<ATM>() {
+                                @Override
+                                public int compare(ATM atm1, ATM atm2) {
+                                    return atm1.getDistance().compareTo(atm2.getDistance());
+                                }
+                            });
+                            atmAdapter.notifyDataSetChanged();
+                        } else if (previousSelected == 1) {
+                            Collections.sort(atmList, new Comparator<ATM>() {
+                                @Override
+                                public int compare(ATM atm1, ATM atm2) {
+                                    return atm2.getDistance().compareTo(atm1.getDistance());
+                                }
+                            });
+                            atmAdapter.notifyDataSetChanged();
+
+                        } else if (previousSelected == 2) {
+                            Collections.sort(atmList, new Comparator<ATM>() {
+                                @Override
+                                public int compare(ATM atm1, ATM atm2) {
+                                    return atm1.getAtmName().compareToIgnoreCase(atm2.getAtmName());
+                                }
+                            });
+                            atmAdapter.notifyDataSetChanged();
+
+                        } else if (previousSelected == 3) {
+                            Collections.sort(atmList, new Comparator<ATM>() {
+                                @Override
+                                public int compare(ATM atm1, ATM atm2) {
+                                    return atm2.getAtmName().compareToIgnoreCase(atm1.getAtmName());
+                                }
+                            });
+                            atmAdapter.notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(getActivity(),
+                                    "Please select correct option",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+
+        builder.show();
     }
 }

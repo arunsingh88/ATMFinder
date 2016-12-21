@@ -10,10 +10,16 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
@@ -59,8 +65,15 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
     private DataProvider dataProvider = new DataProvider();
     private SharedPreferences sharedPreferences;
 
+
     public ATMmapView() {
         atmList = new ArrayList<ATM>();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -171,6 +184,22 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         prepareATMlist();
     }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.mapview_fragment_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                prepareATMlist();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private void prepareATMlist() {
 
@@ -219,7 +248,7 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
             CircleOptions circleOptions = new CircleOptions().center(currentPos).radius(Double.parseDouble(RADIUS)).strokeWidth(2)
                     .strokeColor(Color.BLUE);
             mMap.addCircle(circleOptions);
-            mMap.addMarker(new MarkerOptions().position(currentPos).title("ME").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+            mMap.addMarker(new MarkerOptions().position(currentPos).title("ME").icon(BitmapDescriptorFactory.fromResource(R.drawable.you_marker)));
 
             List<Marker> markers = new ArrayList<Marker>();
             for (int i = 0; i < noOfATM; i++) {
@@ -227,7 +256,7 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
 
                 String title = atmList.get(i).getAtmName();
                 String address = atmList.get(i).getAtmAddress();
-                markers.add(mMap.addMarker(new MarkerOptions().position(marker).title(title).snippet(address)));
+                markers.add(mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon)).position(marker).title(title).snippet(address)));
 
             }
 

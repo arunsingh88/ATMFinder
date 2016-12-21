@@ -7,8 +7,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -20,26 +18,23 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
+import com.thinktanki.atmfinder.atm.ATMListInterface;
 import com.thinktanki.atmfinder.atm.ATMlistView;
-import com.thinktanki.atmfinder.atm.ATMmapView;
 import com.thinktanki.atmfinder.util.AndroidUtil;
+import com.thinktanki.atmfinder.util.FragmentViewPager;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements ATMListInterface, NavigationView.OnNavigationItemSelectedListener {
 
     private String TAG = MainActivity.class.getSimpleName();
     private Toolbar toolbar;
@@ -55,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AndroidUtil androidUtil;
     private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private SharedPreferences sharedPreferences;
+    private FragmentViewPager adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         adView.setVisibility(View.GONE);
         // Initialize the Mobile Ads SDK.
         MobileAds.initialize(this, getResources().getString(R.string.admob_app_id));
-        adRequest = new AdRequest.Builder().addTestDevice("196FCE962C3DC7551A19FD25FC8543D0").build();
+        adRequest = new AdRequest.Builder()/*.addTestDevice("196FCE962C3DC7551A19FD25FC8543D0")*/.build();
 
         adView.loadAd(adRequest);
         adView.setAdListener(new AdListener() {
@@ -106,14 +102,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new ATMlistView(), "LIST VIEW");
-        adapter.addFragment(new ATMmapView(), "MAP VIEW");
+        ArrayList<String> tabs = new ArrayList<>();
+        tabs.add(getResources().getString(R.string.list_view));
+        tabs.add(getResources().getString(R.string.map_view));
+        adapter = new FragmentViewPager(getSupportFragmentManager(), tabs);
         viewPager.setAdapter(adapter);
-    }
-
-    private int getItem(int i) {
-        return viewPager.getCurrentItem() + i;
     }
 
     @Override
@@ -127,7 +120,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.search_location) {
             androidUtil.searchByLocation();
 
+        } else if (id == R.id.search_pincode) {
+            androidUtil.searchByLocation();
+        } else if (id == R.id.near_me) {
+            androidUtil.updateCurrentLocation();
         } else if (id == R.id.nav_sort) {
+            Fragment fragment = adapter.getFragment(LIST_VIEW);
+            ((ATMlistView) fragment).createDialogBox();
 
         } else if (id == R.id.nav_radius) {
             androidUtil.changeRadius();
@@ -158,33 +157,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
+    @Override
+    public void showDialog() {
 
-        public ViewPagerAdapter(FragmentManager manager) {
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
     }
 
     private class RefreshRunnable implements Runnable {
@@ -201,10 +176,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Place place = PlaceAutocomplete.getPlace(this, data);
 
                 LatLng placeLatLng = place.getLatLng();
-
                 Double lat = placeLatLng.latitude;
                 Double lng = placeLatLng.longitude;
-
                 sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -215,7 +188,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.i(TAG, "Place: " + place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
-                // TODO: Handle the error.
                 Log.i(TAG, status.getStatusMessage());
 
             } else if (resultCode == RESULT_CANCELED) {

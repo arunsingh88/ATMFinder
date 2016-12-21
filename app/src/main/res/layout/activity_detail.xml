@@ -2,35 +2,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".DetailActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_weight="1.5">
+        android:layout_marginTop="10dp"
+        android:layout_weight="1.5"
+        android:orientation="vertical">
+
         <TextView
+            android:id="@+id/atmDistance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:textStyle="bold"
             android:layout_marginBottom="5dp"
-            android:id="@+id/atmName" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray" />
+
         <TextView
+            android:id="@+id/atmAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Medium Text"
-            android:id="@+id/atmAddress" />
+            android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
     <FrameLayout
@@ -44,20 +47,14 @@
             android:layout_height="match_parent"></com.google.android.gms.maps.MapView>
     </FrameLayout>
 
-    <FrameLayout
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adViewActivity"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <TextView
-            android:id="@+id/atmDistance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textAlignment="center"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textStyle="bold" />
-    </FrameLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_weight="1"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/banner_home_footer" />
 
 </LinearLayout>
 

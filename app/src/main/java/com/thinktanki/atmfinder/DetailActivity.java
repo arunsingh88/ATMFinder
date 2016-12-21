@@ -7,14 +7,20 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,7 +48,9 @@ public class DetailActivity extends AppCompatActivity {
 
     private String TAG = DetailActivity.class.getSimpleName();
     private MapView detailMapview;
-    private TextView atmName, atmAddress, atmDistance;
+    private TextView atmAddress, atmDistance;
+    private AdView adView;
+    private AdRequest adRequest;
     private String currentLat, currentLng, destLat, destLng;
     private GoogleMap mMap;
     private Context context;
@@ -52,6 +60,9 @@ public class DetailActivity extends AppCompatActivity {
     private List<List<HashMap<String, String>>> routes = null;
     private LatLng currentPosition, destPosition;
     private String nameATM, addressATM;
+    private final Handler refreshHandler = new Handler();
+    private final Runnable refreshRunnable = new RefreshRunnable();
+    private final int REFRESH_RATE_IN_SECONDS = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +84,7 @@ public class DetailActivity extends AppCompatActivity {
         setTitle(nameATM);
         /*Initilize View*/
         detailMapview = (MapView) findViewById(R.id.detailMapView);
-        atmName = (TextView) findViewById(R.id.atmName);
+        //atmName = (TextView) findViewById(R.id.atmName);
         atmAddress = (TextView) findViewById(R.id.atmAddress);
         atmDistance = (TextView) findViewById(R.id.atmDistance);
 
@@ -102,6 +113,31 @@ public class DetailActivity extends AppCompatActivity {
                 new ATMRoute().execute(currentLat, currentLng, destLat, destLng);
             }
         });
+
+        /*Initilialize Advertisement*/
+        adView = (AdView) findViewById(R.id.adViewActivity);
+        adView.setVisibility(View.GONE);
+        // Initialize the Mobile Ads SDK.
+        MobileAds.initialize(this, getResources().getString(R.string.admob_app_id));
+        adRequest = new AdRequest.Builder().addTestDevice("196FCE962C3DC7551A19FD25FC8543D0").build();
+
+        adView.loadAd(adRequest);
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdFailedToLoad(int i) {
+                super.onAdFailedToLoad(i);
+                adView.setVisibility(View.GONE);
+                refreshHandler.removeCallbacks(refreshRunnable);
+                refreshHandler.postDelayed(refreshRunnable, REFRESH_RATE_IN_SECONDS * 1000);
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                adView.setVisibility(View.VISIBLE);
+            }
+        });
+
     }
 
     @Override
@@ -159,8 +195,8 @@ public class DetailActivity extends AppCompatActivity {
             destPosition = new LatLng(Double.parseDouble(destLat), Double.parseDouble(destLng));
 
             List<Marker> marker = new ArrayList<Marker>();
-            marker.add(mMap.addMarker(new MarkerOptions().position(currentPosition).title("ME").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))));
-            marker.add(mMap.addMarker(new MarkerOptions().position(destPosition).title(nameATM).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).snippet(addressATM)));
+            marker.add(mMap.addMarker(new MarkerOptions().position(currentPosition).title("ME").icon(BitmapDescriptorFactory.fromResource(R.drawable.you_marker))));
+            marker.add(mMap.addMarker(new MarkerOptions().position(destPosition).title(nameATM).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon)).snippet(addressATM)));
 
 
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -174,9 +210,9 @@ public class DetailActivity extends AppCompatActivity {
 
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
             mMap.moveCamera(cameraUpdate);
-            atmName.setText(nameATM);
+            //atmName.setText(nameATM);
             atmAddress.setText(addressATM);
-            atmDistance.setText(distance);
+            atmDistance.setText("This ATM is " + distance + " from you.");
 
             pd.dismiss();
         }
@@ -203,9 +239,16 @@ public class DetailActivity extends AppCompatActivity {
             }
             // Adding all the points in the route to LineOptions
             lineOptions.addAll(points);
-            lineOptions.width(5);
-            lineOptions.color(Color.BLUE);
+            lineOptions.width(7);
+            lineOptions.color(getResources().getColor(R.color.colorPrimaryDark));
         }
         mMap.addPolyline(lineOptions);
+    }
+
+    private class RefreshRunnable implements Runnable {
+        @Override
+        public void run() {
+            adView.loadAd(adRequest);
+        }
     }
 }
