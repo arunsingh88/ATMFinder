@@ -1,7 +1,6 @@
 package com.thinktanki.atmfinder.atm;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -24,7 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.thinktanki.atmfinder.util.AndroidUtil;
 import com.thinktanki.atmfinder.util.DataProvider;
 import com.thinktanki.atmfinder.R;
 import com.thinktanki.atmfinder.listview.ATMAdapter;
@@ -35,7 +33,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -57,27 +54,10 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
     private SearchView searchView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private int previousSelected = -1;
-    private ATMListInterface atmListInterface;
 
     public ATMlistView() {
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            atmListInterface = (ATMListInterface) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement ATMListInterface");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        atmListInterface = null;
-        super.onDetach();
-    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,7 +102,6 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
 
         switch (item.getItemId()) {
             case R.id.action_search:
-                Toast.makeText(getActivity(), "search click", Toast.LENGTH_SHORT).show();
                 searchView.setOnQueryTextListener(this);
                 return true;
 
@@ -143,7 +122,12 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
     @Override
     public void onPause() {
         super.onPause();
-        //sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     private void prepareATMList() {
@@ -159,14 +143,23 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        atmAdapter.getFilter().filter(query);
-        Toast.makeText(getActivity(), "onQueryTextSubmit", Toast.LENGTH_SHORT).show();
         return false;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        Toast.makeText(getActivity(), "onQueryTextChange", Toast.LENGTH_SHORT).show();
+
+        newText = newText.toString().toLowerCase();
+        final List<ATM> filteredList = new ArrayList<>();
+        for (int i = 0; i < atmList.size(); i++) {
+            final String text = atmList.get(i).getAtmName().toLowerCase();
+            if (text.contains(newText)) {
+                filteredList.add(atmList.get(i));
+            }
+        }
+        atmAdapter = new ATMAdapter(filteredList, getActivity());
+        recyclerView.setAdapter(atmAdapter);
+        atmAdapter.notifyDataSetChanged();
         return false;
     }
 
@@ -187,7 +180,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
         protected void onPreExecute() {
             super.onPreExecute();
             pd = new ProgressDialog(getActivity());
-            pd.setMessage("Fetching ATM Details..");
+            pd.setMessage(getResources().getString(R.string.loader_message));
             pd.show();
         }
 
@@ -204,9 +197,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
             super.onPostExecute(result);
             pd.dismiss();
             addToATMList(result);
-            // stopping swipe refresh
             swipeRefreshLayout.setRefreshing(false);
-            // avLoadingIndicatorView.hide();
         }
     }
 
@@ -269,7 +260,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
                         previousSelected = which;
                     }
                 })
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         if (previousSelected == 0) {
@@ -279,6 +270,8 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
                                     return atm1.getDistance().compareTo(atm2.getDistance());
                                 }
                             });
+                            atmAdapter = new ATMAdapter(atmList, getActivity());
+                            recyclerView.setAdapter(atmAdapter);
                             atmAdapter.notifyDataSetChanged();
                         } else if (previousSelected == 1) {
                             Collections.sort(atmList, new Comparator<ATM>() {
@@ -287,6 +280,8 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
                                     return atm2.getDistance().compareTo(atm1.getDistance());
                                 }
                             });
+                            atmAdapter = new ATMAdapter(atmList, getActivity());
+                            recyclerView.setAdapter(atmAdapter);
                             atmAdapter.notifyDataSetChanged();
 
                         } else if (previousSelected == 2) {
@@ -296,6 +291,8 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
                                     return atm1.getAtmName().compareToIgnoreCase(atm2.getAtmName());
                                 }
                             });
+                            atmAdapter = new ATMAdapter(atmList, getActivity());
+                            recyclerView.setAdapter(atmAdapter);
                             atmAdapter.notifyDataSetChanged();
 
                         } else if (previousSelected == 3) {
@@ -305,15 +302,17 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
                                     return atm2.getAtmName().compareToIgnoreCase(atm1.getAtmName());
                                 }
                             });
+                            atmAdapter = new ATMAdapter(atmList, getActivity());
+                            recyclerView.setAdapter(atmAdapter);
                             atmAdapter.notifyDataSetChanged();
                         } else {
                             Toast.makeText(getActivity(),
-                                    "Please select correct option",
+                                    getResources().getString(R.string.sort_dialog_box_title_error),
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
                 })
-                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                     }

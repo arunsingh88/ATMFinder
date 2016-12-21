@@ -12,7 +12,7 @@
         android:id="@+id/ib_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_sort_white_24dp"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:background="@null"

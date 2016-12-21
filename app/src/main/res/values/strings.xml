@@ -1,4 +1,8 @@
 <resources>
+     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+        AIzaSyD3hOeAeBE30y2Hlbg-_Id30jPMBZ2Bw1I
+    </string>
+
     <string name="app_name">ATMFinder</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -6,10 +10,12 @@
     <string name="sort_dialog_box_title">Filter your search</string>
     <string name="list_view">LIST VIEW</string>
     <string name="map_view">MAP VIEW</string>
+    <string name="range">Select Range</string>
+    <string name="loader_message">Fetching ATM Details..</string>
+    <string name="ok">OK</string>
+    <string name="cancel">CANCEL</string>
+    <string name="sort_dialog_box_title_error">Please select some option</string>
 
-     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
-        AIzaSyD3hOeAeBE30y2Hlbg-_Id30jPMBZ2Bw1I
-    </string>
 
     <!--Admob ad details-->
     <string name="admob_app_id">ca-app-pub-6264665505773691~4596985763</string>

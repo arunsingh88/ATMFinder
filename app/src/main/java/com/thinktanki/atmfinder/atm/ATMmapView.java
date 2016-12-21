@@ -13,8 +13,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +22,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -143,7 +140,6 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
                 mMap.getUiSettings().setMapToolbarEnabled(true);
 
                 prepareATMlist();
-                //new ATMData().execute(latitude, longitude, RADIUS);
             }
         });
 
@@ -163,15 +159,12 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
     public void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
-
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
-        // sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
-
     }
 
     @Override
@@ -184,6 +177,7 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         prepareATMlist();
     }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.mapview_fragment_menu, menu);
@@ -219,7 +213,7 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
         protected void onPreExecute() {
             super.onPreExecute();
             pd = new ProgressDialog(getActivity());
-            pd.setMessage("Fetching ATM Details..");
+            pd.setMessage(getResources().getString(R.string.loader_message));
             pd.show();
         }
 
@@ -244,13 +238,15 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
             int noOfATM = atmList.size();
             mMap.clear();
 
+            List<Marker> markers = new ArrayList<Marker>();
+
             LatLng currentPos = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
             CircleOptions circleOptions = new CircleOptions().center(currentPos).radius(Double.parseDouble(RADIUS)).strokeWidth(2)
                     .strokeColor(Color.BLUE);
             mMap.addCircle(circleOptions);
-            mMap.addMarker(new MarkerOptions().position(currentPos).title("ME").icon(BitmapDescriptorFactory.fromResource(R.drawable.you_marker)));
+            markers.add(mMap.addMarker(new MarkerOptions().position(currentPos).title("ME").icon(BitmapDescriptorFactory.fromResource(R.drawable.you_marker))));
 
-            List<Marker> markers = new ArrayList<Marker>();
+
             for (int i = 0; i < noOfATM; i++) {
                 marker = new LatLng(atmList.get(i).getLatitude(), atmList.get(i).getLongitude());
 

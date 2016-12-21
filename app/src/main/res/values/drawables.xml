@@ -8,5 +8,5 @@
     <item name="ic_menu_radius" type="drawable">@drawable/ic_tune_white_24dp</item>
     <item name="ic_menu_sort" type="drawable">@drawable/ic_sort_white_24dp</item>
     <item name="ic_near_me" type="drawable">@drawable/ic_near_me_white_24dp</item>
-    <item name="ic_search_pincode" type="drawable">@drawable/ic_my_location_white_24dp</item>
+    <item name="ic_search_pincode" type="drawable">@drawable/ic_local_post_office_white_24dp</item>
 </resources>

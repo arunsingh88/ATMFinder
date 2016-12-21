@@ -22,69 +22,13 @@ import java.util.List;
  * Created by aruns512 on 12/12/2016.
  */
 
-public class ATMAdapter extends RecyclerView.Adapter<ATMAdapter.MyViewHolder> implements Filterable{
+public class ATMAdapter extends RecyclerView.Adapter<ATMAdapter.MyViewHolder> {
     private List<ATM> atmList;
     private Context context;
-    private final List<ATM> userList;
-    private UserFilter userFilter;
 
-    private final List<ATM> filteredUserList;
-
-    public ATMAdapter(List<ATM> atmList,Context context) {
+    public ATMAdapter(List<ATM> atmList, Context context) {
         this.atmList = atmList;
-        this.userList =new ArrayList<>();
-        this.filteredUserList = new ArrayList<>();
-        this.context=context;
-    }
-
-    public void setFilter(List<ATM> atmLists) {
-        atmList = new ArrayList<>();
-        atmList.addAll(atmLists);
-        notifyDataSetChanged();
-    }
-
-    private static class UserFilter extends Filter {
-
-        private final ATMAdapter adapter;
-
-        private final List<ATM> originalList;
-
-        private final List<ATM> filteredList;
-
-        private UserFilter(ATMAdapter adapter, List<ATM> originalList) {
-            super();
-            this.adapter = adapter;
-            this.originalList = new LinkedList<>(originalList);
-            this.filteredList = new ArrayList<>();
-        }
-
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            filteredList.clear();
-            final FilterResults results = new FilterResults();
-
-            if (constraint.length() == 0) {
-                filteredList.addAll(originalList);
-            } else {
-                final String filterPattern = constraint.toString().toLowerCase().trim();
-
-                for (final ATM user : originalList) {
-                    if (user.getAtmName().contains(filterPattern)) {
-                        filteredList.add(user);
-                    }
-                }
-            }
-            results.values = filteredList;
-            results.count = filteredList.size();
-            return results;
-        }
-
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            adapter.filteredUserList.clear();
-            adapter.filteredUserList.addAll((ArrayList<ATM>) results.values);
-            adapter.notifyDataSetChanged();
-        }
+        this.context = context;
     }
 
     @Override
@@ -92,14 +36,14 @@ public class ATMAdapter extends RecyclerView.Adapter<ATMAdapter.MyViewHolder> im
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.atm_row, parent, false);
 
-        return new MyViewHolder(itemView,context);
+        return new MyViewHolder(itemView, context);
     }
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         ATM atmObj = atmList.get(position);
         holder.atmName.setText(atmObj.getAtmName());
-        holder.distance.setText(atmObj.getDistance().toString()+" Kms");
+        holder.distance.setText(atmObj.getDistance().toString() + " Kms");
         holder.atmAddress.setText(atmObj.getAtmAddress());
     }
 
@@ -108,20 +52,12 @@ public class ATMAdapter extends RecyclerView.Adapter<ATMAdapter.MyViewHolder> im
         return atmList.size();
     }
 
-    @Override
-    public Filter getFilter() {
-        if(userFilter == null)
-            userFilter = new UserFilter(this, userList);
-        return userFilter;
-    }
-
-
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView atmName, distance, atmAddress;
         private Intent intent;
         private Context context;
 
-        public MyViewHolder(View view,Context context) {
+        public MyViewHolder(View view, Context context) {
             super(view);
             atmName = (TextView) view.findViewById(R.id.atmName);
             distance = (TextView) view.findViewById(R.id.distance);

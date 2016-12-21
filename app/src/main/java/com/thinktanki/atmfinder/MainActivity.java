@@ -27,14 +27,13 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
-import com.thinktanki.atmfinder.atm.ATMListInterface;
 import com.thinktanki.atmfinder.atm.ATMlistView;
 import com.thinktanki.atmfinder.util.AndroidUtil;
 import com.thinktanki.atmfinder.util.FragmentViewPager;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements ATMListInterface, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private String TAG = MainActivity.class.getSimpleName();
     private Toolbar toolbar;
@@ -155,11 +154,6 @@ public class MainActivity extends AppCompatActivity implements ATMListInterface,
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public void showDialog() {
-
     }
 
     private class RefreshRunnable implements Runnable {

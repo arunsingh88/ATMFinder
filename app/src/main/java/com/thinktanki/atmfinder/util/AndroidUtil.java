@@ -61,7 +61,6 @@ public class AndroidUtil {
     private Intent shareApp;
     private SharedPreferences sharedPreferences;
     private String response;
-    private HttpURLConnection urlConnection;
     private String TAG = DataProvider.class.getSimpleName();
     private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
@@ -144,15 +143,15 @@ public class AndroidUtil {
         View layout = inflater.inflate(R.layout.radius_dialogbox, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setView(layout)
-                .setTitle("Select Radius")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setTitle(context.getResources().getString(R.string.range))
+                .setPositiveButton(context.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         editor.putString("RADIUS", range[0]);
                         editor.commit();
                     }
                 })
-                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                .setNegativeButton(context.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -207,6 +206,7 @@ public class AndroidUtil {
             gps.showSettingsAlert();
         }
     }
+
     /*Change Status Bar Color*/
     public void changeStatusBarColor() {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -239,93 +239,7 @@ public class AndroidUtil {
         return response;
     }
 
-    public String ATMData(String latitude, String longitude, String radius) {
-        String atmList = null;
-        final String GOOGLE_PLACE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
-        final String RADIUS = "radius";
-        final String API_KEY = "key";
-        final String CURRENT_LOCATION = "location";
-        final String TYPE = "type";
-        try {
-            Uri builtUri = Uri.parse(GOOGLE_PLACE_URL).buildUpon()
-                    .appendQueryParameter(CURRENT_LOCATION, latitude + "," + longitude)
-                    .appendQueryParameter(RADIUS, radius)
-                    .appendQueryParameter(TYPE, "atm")
-                    .appendQueryParameter(API_KEY, BuildConfig.GOOGLE_PLACE_API_KEY)
-                    .build();
-
-            URL url = new URL(builtUri.toString());
-            Log.v(TAG + "PLACE_API_URL", url.toString());
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setReadTimeout(10000 /* milliseconds */);
-            urlConnection.setConnectTimeout(15000 /* milliseconds */);
-            urlConnection.setRequestMethod("GET");
-            urlConnection.setDoInput(true);
-            // Starts the query
-            urlConnection.connect();
-            int response = urlConnection.getResponseCode();
-            Log.d(TAG + "ATMData", "The response is: " + response);
-            InputStream in = urlConnection.getInputStream();
-            // Convert the InputStream into a string
-            atmList = readATMData(in);
-            return atmList;
-        } catch (Exception e) {
-            Log.e(TAG + "PLACE_API_CALL", e.getMessage());
-        } finally {
-            urlConnection.disconnect();
-        }
-
-        return atmList;
-    }
-
-    public Float distanceInKm(String lat_origin, String lng_origin, String lat_dest, String lng_dest) {
-        Location origin = new Location("ORIGIN");
-        origin.setLatitude(Double.parseDouble(lat_origin));
-        origin.setLongitude(Double.parseDouble(lng_origin));
-
-        Location destination = new Location("DESTINATION");
-        destination.setLatitude(Double.parseDouble(lat_dest));
-        destination.setLongitude(Double.parseDouble(lng_dest));
-
-        Float distanceInKm = origin.distanceTo(destination) / 1000;
-        distanceInKm = Float.parseFloat(String.format("%.2f", distanceInKm));
-        return distanceInKm;
-    }
-
-    public String mapRouteData(String lat_origin, String lng_origin, String lat_dest, String lng_dest) {
-        final String GOOGLE_DISTANCE_URL = "http://maps.google.com/maps/api/directions/json?";
-        final String ORIGIN = "origin";
-        final String DESTINATION = "destination";
-        final String SENSOR = "sensor";
-        final String UNITS = "units";
-
-        try {
-            Uri builtUri = Uri.parse(GOOGLE_DISTANCE_URL).buildUpon()
-                    .appendQueryParameter(ORIGIN, lat_origin + "," + lng_origin)
-                    .appendQueryParameter(DESTINATION, lat_dest + "," + lng_dest)
-                    .appendQueryParameter(SENSOR, "false")
-                    .appendQueryParameter(UNITS, "metric")
-                    .build();
-
-            URL url = new URL(builtUri.toString());
-            Log.v(TAG + "DIRECTION URL", url.toString());
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setReadTimeout(10000 /* milliseconds */);
-            urlConnection.setConnectTimeout(15000 /* milliseconds */);
-            urlConnection.setRequestMethod("GET");
-            urlConnection.setDoInput(true);
-            // Starts the query
-            urlConnection.connect();
-            int responseCode = urlConnection.getResponseCode();
-            Log.d(TAG + "DIRECTION RESPONSE", "The response is: " + responseCode);
-            InputStream is = urlConnection.getInputStream();
-            response = readATMData(is);
-        } catch (Exception e) {
-            Log.e(TAG + "DIRECTION_EXCEPTION", e.getMessage());
-        }
-        return response;
-    }
-
+    /*Function to check Internet Connectivity*/
     public boolean checkNetworkStatus() {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -336,7 +250,7 @@ public class AndroidUtil {
     }
 
     /*this funciton will check whether particular permission is granted or not*/
-    public boolean checkAndRequestPermissions(int REQUEST_ID_MULTIPLE_PERMISSIONS ) {
+    public boolean checkAndRequestPermissions(int REQUEST_ID_MULTIPLE_PERMISSIONS) {
         int preciseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
         int locationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
         List<String> listPermissionsNeeded = new ArrayList<>();

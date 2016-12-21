@@ -84,7 +84,6 @@ public class DetailActivity extends AppCompatActivity {
         setTitle(nameATM);
         /*Initilize View*/
         detailMapview = (MapView) findViewById(R.id.detailMapView);
-        //atmName = (TextView) findViewById(R.id.atmName);
         atmAddress = (TextView) findViewById(R.id.atmAddress);
         atmDistance = (TextView) findViewById(R.id.atmDistance);
 
@@ -119,7 +118,7 @@ public class DetailActivity extends AppCompatActivity {
         adView.setVisibility(View.GONE);
         // Initialize the Mobile Ads SDK.
         MobileAds.initialize(this, getResources().getString(R.string.atm_detail_page_footer));
-        adRequest = new AdRequest.Builder()/*.addTestDevice("196FCE962C3DC7551A19FD25FC8543D0")*/.build();
+        adRequest = new AdRequest.Builder().build();
 
         adView.loadAd(adRequest);
         adView.setAdListener(new AdListener() {
@@ -158,7 +157,7 @@ public class DetailActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             pd = new ProgressDialog(DetailActivity.this);
-            pd.setMessage("Fetching ATM Details..");
+            pd.setMessage(getResources().getString(R.string.loader_message));
             pd.show();
         }
 

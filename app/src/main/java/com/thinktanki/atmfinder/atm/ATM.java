@@ -1,7 +1,7 @@
 package com.thinktanki.atmfinder.atm;
 
 /**
- * Created by aruns512 on 12/12/2016.
+ * Created by Arun Singh on 12/12/2016.
  */
 public class ATM {
     private String atmName;
