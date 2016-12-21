@@ -127,7 +127,6 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
                 return true;
 
             case R.id.action_sort:
-                //do something
                 createDialogBox();
                 return true;
         }
