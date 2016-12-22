@@ -6,16 +6,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.thinktanki.atmfinder.DetailActivity;
 import com.thinktanki.atmfinder.R;
 import com.thinktanki.atmfinder.atm.ATM;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -34,7 +30,7 @@ public class ATMAdapter extends RecyclerView.Adapter<ATMAdapter.MyViewHolder> {
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.atm_row, parent, false);
+                .inflate(R.layout.item_atm_object, parent, false);
 
         return new MyViewHolder(itemView, context);
     }

@@ -18,7 +18,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/icon_atm" />
+            android:src="@drawable/ic_atm" />
     </LinearLayout>
 
     <LinearLayout

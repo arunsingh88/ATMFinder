@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#009688</color>
     <color name="colorPrimaryDark">#00897b</color>
-    <color name="colorAccent">#ff7043</color>
+    <color name="colorAccent">#FF4081</color>
     <color name="popup_window">#BF000000</color>
     <color name="gradientColor">#4db6ac</color>
     <color name="tabColor">#26a69a</color>

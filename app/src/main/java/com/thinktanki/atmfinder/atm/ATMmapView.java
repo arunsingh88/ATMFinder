@@ -245,7 +245,7 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
             CircleOptions circleOptions = new CircleOptions().center(currentPos).radius(Double.parseDouble(RADIUS)).strokeWidth(2)
                     .strokeColor(Color.BLUE);
             mMap.addCircle(circleOptions);
-            markers.add(mMap.addMarker(new MarkerOptions().position(currentPos).title("ME").icon(BitmapDescriptorFactory.fromResource(R.drawable.you_marker))));
+            markers.add(mMap.addMarker(new MarkerOptions().position(currentPos).title("ME").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_me))));
 
 
             for (int i = 0; i < noOfATM; i++) {
@@ -253,7 +253,7 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
 
                 String title = atmList.get(i).getAtmName();
                 String address = atmList.get(i).getAtmAddress();
-                markers.add(mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon)).position(marker).title(title).snippet(address)));
+                markers.add(mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_atm_marker)).position(marker).title(title).snippet(address)));
 
             }
 

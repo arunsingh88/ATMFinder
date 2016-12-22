@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -32,23 +31,13 @@ import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Toast;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.thinktanki.atmfinder.BuildConfig;
 import com.thinktanki.atmfinder.R;
-import com.thinktanki.atmfinder.atm.ATM;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -93,7 +82,7 @@ public class AndroidUtil {
     public void aboutApp(LinearLayout linearLayout) {
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View customView = inflater.inflate(R.layout.about_app_dialog, null);
+        View customView = inflater.inflate(R.layout.dialog_aboutapp, null);
         // Initialize a new instance of popup window
         popupWindow = new PopupWindow(
                 customView,
@@ -126,7 +115,7 @@ public class AndroidUtil {
         final String[] range = {RADIUS[0]};
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.radius_dialogbox, null);
+        View layout = inflater.inflate(R.layout.dialog_range, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setView(layout)
                 .setTitle(context.getResources().getString(R.string.range))
