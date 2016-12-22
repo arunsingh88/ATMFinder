@@ -62,7 +62,6 @@ public class AndroidUtil {
     private SharedPreferences sharedPreferences;
     private String response;
     private String TAG = DataProvider.class.getSimpleName();
-    private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
     public AndroidUtil(Activity context) {
         this.context = context;
@@ -118,19 +117,6 @@ public class AndroidUtil {
         // Removes default background.
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         popupWindow.showAtLocation(linearLayout, Gravity.CENTER, 0, 0);
-    }
-
-    public void searchByLocation() {
-        try {
-            Intent intent =
-                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-                            .build(context);
-            context.startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-        } catch (GooglePlayServicesRepairableException e) {
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-        } catch (GooglePlayServicesNotAvailableException e) {
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
     }
 
     public void changeRadius() {

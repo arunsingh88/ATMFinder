@@ -33,6 +33,7 @@
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/tabColor"
                 app:tabGravity="fill"
                 app:tabMode="fixed" />
         </android.support.design.widget.AppBarLayout>
@@ -51,6 +52,6 @@
         android:layout_alignParentBottom="true"
         android:layout_weight="0.1"
         ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/banner_home_footer" />
+        ads:adUnitId="@string/main_activity_page_footer" />
 
 </LinearLayout>

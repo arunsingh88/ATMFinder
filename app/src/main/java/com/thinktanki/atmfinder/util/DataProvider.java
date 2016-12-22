@@ -1,10 +1,12 @@
 package com.thinktanki.atmfinder.util;
 
+import android.content.Context;
 import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
 
 import com.thinktanki.atmfinder.BuildConfig;
+import com.thinktanki.atmfinder.R;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,7 +20,13 @@ import java.net.URL;
 public class DataProvider {
     private String response;
     private HttpURLConnection urlConnection;
+    private Context context;
     private String TAG = DataProvider.class.getSimpleName();
+
+    public DataProvider(Context context)
+    {
+        this.context=context;
+    }
 
     public String readATMData(InputStream stream) {
 
@@ -53,7 +61,7 @@ public class DataProvider {
                     .appendQueryParameter(CURRENT_LOCATION, latitude + "," + longitude)
                     .appendQueryParameter(RADIUS, radius)
                     .appendQueryParameter(TYPE, "atm")
-                    .appendQueryParameter(API_KEY, BuildConfig.GOOGLE_PLACE_API_KEY)
+                    .appendQueryParameter(API_KEY,context.getResources().getString(R.string.GOOGLE_PLACE_API_KEY) )
                     .build();
 
             URL url = new URL(builtUri.toString());

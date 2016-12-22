@@ -1,7 +1,4 @@
 <resources>
-     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
-        AIzaSyD3hOeAeBE30y2Hlbg-_Id30jPMBZ2Bw1I
-    </string>
 
     <string name="app_name">ATMFinder</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -15,11 +12,12 @@
     <string name="ok">OK</string>
     <string name="cancel">CANCEL</string>
     <string name="sort_dialog_box_title_error">Please select some option</string>
-
+    <string name="gps_not_enabled">GPS Not Enabled</string>
+    <string name="gps_turnon_msg">Do you want to turn on the GPS</string>
 
     <!--Admob ad details-->
     <string name="admob_app_id">ca-app-pub-6264665505773691~4596985763</string>
-    <string name="banner_home_footer">ca-app-pub-6264665505773691/6073718967</string>
+    <string name="main_activity_page_footer">ca-app-pub-6264665505773691/6073718967</string>
     <string name="atm_detail_page_footer">ca-app-pub-6264665505773691/7550452167</string>
 
 

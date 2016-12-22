@@ -59,7 +59,7 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
     private LatLng marker;
     private SeekBar seekBar;
     private TextView radiusOfArea;
-    private DataProvider dataProvider = new DataProvider();
+    private DataProvider dataProvider;
     private SharedPreferences sharedPreferences;
 
 
@@ -77,6 +77,7 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_atmmap_view, container, false);
+        dataProvider=new DataProvider(getActivity());
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         latitude = sharedPreferences.getString("LATITUDE", null);

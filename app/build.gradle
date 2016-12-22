@@ -19,7 +19,7 @@ android {
 
     }
     buildTypes.each {
-        it.buildConfigField 'String', 'GOOGLE_PLACE_API_KEY', googlePlaceAPIKey
+        it.resValue  "string", 'GOOGLE_PLACE_API_KEY', googlePlaceAPIKey
     }
 
 }

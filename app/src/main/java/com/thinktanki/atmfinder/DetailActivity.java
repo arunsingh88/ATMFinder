@@ -53,7 +53,7 @@ public class DetailActivity extends AppCompatActivity {
     private String currentLat, currentLng, destLat, destLng;
     private GoogleMap mMap;
     private Context context;
-    private DataProvider dataProvider = new DataProvider();
+    private DataProvider dataProvider;
     private String distance;
     private Bundle bundle;
     private List<List<HashMap<String, String>>> routes = null;
@@ -79,6 +79,8 @@ public class DetailActivity extends AppCompatActivity {
             destLat = doubleLat.toString();
             destLng = doubleLng.toString();
         }
+
+        dataProvider=new DataProvider(this);
 
         setTitle(nameATM);
         /*Initilize View*/

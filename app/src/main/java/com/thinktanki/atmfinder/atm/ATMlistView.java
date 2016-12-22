@@ -42,7 +42,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
     private List<ATM> atmList;
     private RecyclerView recyclerView;
     private ATMAdapter atmAdapter;
-    private DataProvider dataProvider = new DataProvider();
+    private DataProvider dataProvider;
     private String latitude, lat_dest;
     private String longitude, lng_dest;
     private String atmName, atmAddress;
@@ -70,6 +70,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_atmlist_view, container, false);
 
+        dataProvider=new DataProvider(getActivity());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -189,7 +190,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
             String lat = params[0];
             String lng = params[1];
             String radius = params[2];
-            return new DataProvider().ATMData(lat, lng, radius);
+            return dataProvider.ATMData(lat, lng, radius);
         }
 
         @Override

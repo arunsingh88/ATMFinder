@@ -18,11 +18,14 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private SharedPreferences sharedPreferences;
     private FragmentViewPager adapter;
+    private Intent placePickerIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +89,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         androidUtil = new AndroidUtil(MainActivity.this);
 
+        /*Initialize Google Place Picker*/
+        placePickerGoogle(placePickerIntent);
+
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -114,15 +121,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.map_view) {
             viewPager.setCurrentItem(MAP_VIEW, true);
+
         } else if (id == R.id.list_view) {
             viewPager.setCurrentItem(LIST_VIEW, true);
+
         } else if (id == R.id.search_location) {
-            androidUtil.searchByLocation();
+            startActivityForResult(placePickerIntent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
 
         } else if (id == R.id.search_pincode) {
-            androidUtil.searchByLocation();
+            startActivityForResult(placePickerIntent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+
         } else if (id == R.id.near_me) {
             androidUtil.updateCurrentLocation();
+
         } else if (id == R.id.nav_sort) {
             Fragment fragment = adapter.getFragment(LIST_VIEW);
             ((ATMlistView) fragment).createDialogBox();
@@ -187,6 +198,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else if (resultCode == RESULT_CANCELED) {
                 // The user canceled the operation.
             }
+        }
+    }
+
+    public void placePickerGoogle(Intent intent) {
+        try {
+            placePickerIntent = intent;
+            placePickerIntent =
+                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                            .build(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }
