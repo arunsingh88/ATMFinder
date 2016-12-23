@@ -16,10 +16,11 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center"
-        android:scaleType="fitXY"
+        android:scaleType="fitCenter"
         android:layout_marginBottom="@dimen/nav_header_padding"
         android:layout_marginTop="@dimen/nav_header_padding"
-        android:src="@drawable/ic_atm" />
+        android:background="@drawable/circle"
+        android:src="@drawable/icon_atmfinder" />
 
     <TextView
         android:layout_width="wrap_content"

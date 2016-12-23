@@ -1,7 +1,9 @@
 package com.thinktanki.atmfinder.atm;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -61,6 +63,8 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private TextView radiusOfArea;
     private DataProvider dataProvider;
     private SharedPreferences sharedPreferences;
+    private Intent intent;
+    private Activity mapActivity;
 
 
     public MapFragment() {
@@ -77,9 +81,10 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_atmmap_view, container, false);
-        dataProvider=new DataProvider(getActivity());
+        mapActivity = getActivity();
+        dataProvider = new DataProvider(mapActivity);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mapActivity);
         latitude = sharedPreferences.getString("LATITUDE", null);
         longitude = sharedPreferences.getString("LONGITUDE", null);
         RADIUS = sharedPreferences.getString("RADIUS", "1000");
@@ -112,7 +117,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             public void onStopTrackingTouch(SeekBar seekBar) {
                 RADIUS = String.valueOf(progressChanged * 1000);
 
-                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mapActivity);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("RADIUS", RADIUS);
                 editor.commit();
@@ -123,7 +128,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
 
         try {
-            MapsInitializer.initialize(getActivity().getApplicationContext());
+            MapsInitializer.initialize(mapActivity.getApplicationContext());
         } catch (Exception e) {
             Log.e(TAG + "MAP_INITILIZE", e.getMessage());
         }
@@ -133,12 +138,27 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
 
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(mapActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mapActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setMapToolbarEnabled(true);
+                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+                        /*Start Detail Activity when user click on ATM Marker*/
+                        if (!marker.getTitle().equalsIgnoreCase(mapActivity.getResources().getString(R.string.marker_you))) {
+                            intent = new Intent(mapActivity, DetailActivity.class);
+                            intent.putExtra("ATM_NAME", marker.getTitle());
+                            intent.putExtra("ATM_ADDRESS", marker.getSnippet());
+                            intent.putExtra("LATITUDE", marker.getPosition().latitude);
+                            intent.putExtra("LONGITUDE", marker.getPosition().longitude);
+
+                            mapActivity.startActivity(intent);
+                        }
+                    }
+                });
 
                 prepareATMlist();
             }
@@ -207,13 +227,22 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         radiusOfArea.setText("ATMs within the range of " + Integer.parseInt(RADIUS) / 1000 + " kms.");
     }
 
+    /*@Override
+    public void onInfoWindowClick(Marker marker) {
+        LatLng latLng=marker.getPosition();
+        String atmName=marker.getTitle();
+        String address=marker.getSnippet();
+        Toast.makeText(mapActivity,latLng.toString()+atmName+address,Toast.LENGTH_SHORT).show();
+
+    }*/
+
     private class ATMData extends AsyncTask<String, Void, String> {
         ProgressDialog pd = null;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            pd = new ProgressDialog(getActivity());
+            pd = new ProgressDialog(mapActivity);
             pd.setMessage(getResources().getString(R.string.loader_message));
             pd.show();
         }
@@ -239,13 +268,15 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             int noOfATM = atmList.size();
             mMap.clear();
 
-            List<Marker> markers = new ArrayList<Marker>();
+            final List<Marker> markers = new ArrayList<Marker>();
 
             LatLng currentPos = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
             CircleOptions circleOptions = new CircleOptions().center(currentPos).radius(Double.parseDouble(RADIUS)).strokeWidth(2)
                     .strokeColor(Color.BLUE);
             mMap.addCircle(circleOptions);
-            markers.add(mMap.addMarker(new MarkerOptions().position(currentPos).title("ME").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_me))));
+            mMap.addMarker(new MarkerOptions().position(currentPos).title(mapActivity.getResources().getString(R.string.marker_you)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_me))).showInfoWindow();
+
+            markers.add(mMap.addMarker(new MarkerOptions().position(currentPos).title(mapActivity.getResources().getString(R.string.marker_you)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_me))));
 
 
             for (int i = 0; i < noOfATM; i++) {
@@ -256,6 +287,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                 markers.add(mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_atm_marker)).position(marker).title(title).snippet(address)));
 
             }
+
 
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             for (Marker marker : markers) {
@@ -271,6 +303,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                 CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
                 mMap.moveCamera(cu);
             }
+
 
         }
     }

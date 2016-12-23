@@ -196,7 +196,9 @@ public class DetailActivity extends AppCompatActivity {
             destPosition = new LatLng(Double.parseDouble(destLat), Double.parseDouble(destLng));
 
             List<Marker> marker = new ArrayList<Marker>();
-            marker.add(mMap.addMarker(new MarkerOptions().position(currentPosition).title("ME").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_me))));
+            mMap.addMarker(new MarkerOptions().position(currentPosition).title(getResources().getString(R.string.marker_you)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_me))).showInfoWindow();
+
+            marker.add(mMap.addMarker(new MarkerOptions().position(currentPosition).title(getResources().getString(R.string.marker_you)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_me))));
             marker.add(mMap.addMarker(new MarkerOptions().position(destPosition).title(nameATM).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_atm_marker)).snippet(addressATM)));
 
 

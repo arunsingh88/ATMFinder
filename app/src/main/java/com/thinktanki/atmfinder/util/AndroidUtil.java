@@ -79,33 +79,18 @@ public class AndroidUtil {
     }
 
     /*Description about app in popup window*/
-    public void aboutApp(LinearLayout linearLayout) {
+    public void aboutApp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(context.getResources().getString(R.string.about_app_title))
+                .setMessage(Html.fromHtml(context.getResources().getString(R.string.about_app_desc)))
+                .setNegativeButton(context.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View customView = inflater.inflate(R.layout.dialog_aboutapp, null);
-        // Initialize a new instance of popup window
-        popupWindow = new PopupWindow(
-                customView,
-                LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT
-        );
-        ImageButton closeButton = (ImageButton) customView.findViewById(R.id.ib_close);
-        TextView textView = (TextView) customView.findViewById(R.id.tv);
-        textView.setText(Html.fromHtml(context.getResources().getString(R.string.about_app_desc)));
-        // Set a click listener for the popup window close button
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Dismiss the popup window
-                popupWindow.dismiss();
-            }
-        });
-        // Closes the popup window when touch outside.
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setFocusable(true);
-        // Removes default background.
-        popupWindow.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(R.color.tabColor)));
-        popupWindow.showAtLocation(linearLayout, Gravity.CENTER, 0, 0);
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     public void changeRadius() {

@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +45,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
     private final String TAG = ListFragment.class.getSimpleName();
     private List<ATM> atmList;
     private RecyclerView recyclerView;
-    private TextView emptyView;
+    private LinearLayout emptyView;
     private ATMAdapter atmAdapter;
     private DataProvider dataProvider;
     private String latitude, lat_dest;
@@ -76,7 +77,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
 
         dataProvider=new DataProvider(getActivity());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
-        emptyView = (TextView) rootView.findViewById(R.id.empty_view);
+        emptyView=(LinearLayout)rootView.findViewById(R.id.empty_view);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 

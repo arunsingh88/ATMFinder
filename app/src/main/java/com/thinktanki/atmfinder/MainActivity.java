@@ -142,8 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             androidUtil.changeRadius();
 
         } else if (id == R.id.nav_aboutApp) {
-            LinearLayout layout = (LinearLayout) MainActivity.this.findViewById(R.id.main_activity);
-            androidUtil.aboutApp(layout);
+            androidUtil.aboutApp();
 
         } else if (id == R.id.nav_share) {
             androidUtil.shareApp();
