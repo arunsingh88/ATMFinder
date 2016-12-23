@@ -36,6 +36,10 @@
     <item android:title="About Us">
         <menu>
             <item
+                android:id="@+id/nav_rateApp"
+                android:icon="@drawable/ic_menu_rate"
+                android:title="Rate App" />
+            <item
                 android:id="@+id/nav_aboutApp"
                 android:icon="@drawable/ic_menu_about"
                 android:title="About App" />
@@ -43,10 +47,7 @@
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_share_white_24dp"
                 android:title="Share" />
-            <item
-                android:id="@+id/nav_rateApp"
-                android:icon="@drawable/ic_menu_rate"
-                android:title="Rate App" />
+
         </menu>
     </item>
 

@@ -121,6 +121,7 @@ public class DetailActivity extends AppCompatActivity {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.setPackage("com.google.android.apps.maps");
+                        if(!currentLat.equalsIgnoreCase(String.valueOf(marker.getPosition().latitude)))
                         startActivity(intent);
                         return false;
                     }

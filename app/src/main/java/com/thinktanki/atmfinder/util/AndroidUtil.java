@@ -208,25 +208,4 @@ public class AndroidUtil {
                 activeNetwork.isConnectedOrConnecting();
         return isConnected;
     }
-
-    /*this funciton will check whether particular permission is granted or not*/
-    public boolean checkAndRequestPermissions(int REQUEST_ID_MULTIPLE_PERMISSIONS) {
-        int preciseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
-        int locationPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION);
-        List<String> listPermissionsNeeded = new ArrayList<>();
-
-        if (preciseLocation != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(context, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
-            return false;
-        }
-        return true;
-    }
-
-
 }
