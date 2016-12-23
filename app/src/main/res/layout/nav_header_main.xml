@@ -20,7 +20,7 @@
         android:layout_marginBottom="@dimen/nav_header_padding"
         android:layout_marginTop="@dimen/nav_header_padding"
         android:background="@drawable/circle"
-        android:src="@drawable/icon_atmfinder" />
+        android:src="@drawable/ic_splash_screen" />
 
     <TextView
         android:layout_width="wrap_content"

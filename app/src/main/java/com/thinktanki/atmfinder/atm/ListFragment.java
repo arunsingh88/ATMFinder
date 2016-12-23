@@ -75,9 +75,9 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_atmlist_view, container, false);
 
-        dataProvider=new DataProvider(getActivity());
+        dataProvider = new DataProvider(getActivity());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
-        emptyView=(LinearLayout)rootView.findViewById(R.id.empty_view);
+        emptyView = (LinearLayout) rootView.findViewById(R.id.empty_view);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -211,8 +211,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
             if (atmList.isEmpty()) {
                 recyclerView.setVisibility(View.GONE);
                 emptyView.setVisibility(View.VISIBLE);
-            }
-            else {
+            } else {
                 recyclerView.setVisibility(View.VISIBLE);
                 emptyView.setVisibility(View.GONE);
             }

@@ -3,8 +3,10 @@ package com.thinktanki.atmfinder.atm;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -111,6 +113,18 @@ public class DetailActivity extends AppCompatActivity {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setMapToolbarEnabled(true);
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+                        String baseUri = "http://maps.google.com/maps?saddr=%s,%s&daddr=%s,%s";
+                        String uri = String.format(baseUri, currentLat, currentLng, marker.getPosition().latitude, marker.getPosition().longitude);
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setPackage("com.google.android.apps.maps");
+                        startActivity(intent);
+                        return false;
+                    }
+                });
                 new ATMRoute().execute(currentLat, currentLng, destLat, destLng);
             }
         });
