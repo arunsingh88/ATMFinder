@@ -1,26 +1,22 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:background="@android:color/white">
-    <LinearLayout
+
+    <!-- <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:weightSum="1">
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_atm" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:textAlignment="center"
-            android:text="Thinkanki Technology"
-            android:typeface="serif" />
+            android:layout_height="0dp"
+            android:src="@drawable/atm_finder"
+            android:layout_weight="1" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -29,8 +25,38 @@
             android:text="@string/app_name"
             android:textStyle="bold"
             android:typeface="serif" />
+    </LinearLayout>-->
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="@string/developer_name"
+        android:layout_marginBottom="10dp"
+        android:typeface="serif"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
-    </LinearLayout>
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_atm_finder"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="233dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="54dp"
+        android:text="@string/app_name"
+        android:textStyle="bold"
+        android:typeface="serif"
+        android:layout_below="@+id/imageView"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

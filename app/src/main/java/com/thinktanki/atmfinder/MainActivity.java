@@ -30,9 +30,9 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
-import com.thinktanki.atmfinder.atm.ATMlistView;
+import com.thinktanki.atmfinder.atm.ListFragment;
 import com.thinktanki.atmfinder.util.AndroidUtil;
-import com.thinktanki.atmfinder.util.FragmentViewPager;
+import com.thinktanki.atmfinder.adapter.FragmentViewPager;
 
 import java.util.ArrayList;
 
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         } else if (id == R.id.nav_sort) {
             Fragment fragment = adapter.getFragment(LIST_VIEW);
-            ((ATMlistView) fragment).createDialogBox();
+            ((ListFragment) fragment).createDialogBox();
 
         } else if (id == R.id.nav_radius) {
             androidUtil.changeRadius();

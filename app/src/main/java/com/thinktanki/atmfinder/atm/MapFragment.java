@@ -45,8 +45,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
-    private final String TAG = ATMmapView.class.getSimpleName();
+public class MapFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private final String TAG = MapFragment.class.getSimpleName();
     private String RADIUS;
     private int noOfATM;
     private String atmName;
@@ -63,7 +63,7 @@ public class ATMmapView extends Fragment implements SharedPreferences.OnSharedPr
     private SharedPreferences sharedPreferences;
 
 
-    public ATMmapView() {
+    public MapFragment() {
         atmList = new ArrayList<ATM>();
     }
 

@@ -1,4 +1,4 @@
-package com.thinktanki.atmfinder;
+package com.thinktanki.atmfinder.atm;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -32,6 +32,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.thinktanki.atmfinder.R;
 import com.thinktanki.atmfinder.util.DataProvider;
 import com.thinktanki.atmfinder.util.DirectionJSONParser;
 

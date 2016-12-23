@@ -1,4 +1,4 @@
-package com.thinktanki.atmfinder.util;
+package com.thinktanki.atmfinder.adapter;
 
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -7,8 +7,8 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import com.thinktanki.atmfinder.atm.ATMlistView;
-import com.thinktanki.atmfinder.atm.ATMmapView;
+import com.thinktanki.atmfinder.atm.ListFragment;
+import com.thinktanki.atmfinder.atm.MapFragment;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -28,11 +28,11 @@ public class FragmentViewPager extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                ATMlistView atMlistView = new ATMlistView();
-                return atMlistView;
+                ListFragment listFragment = new ListFragment();
+                return listFragment;
             case 1:
-                ATMmapView atMmapView = new ATMmapView();
-                return atMmapView;
+                MapFragment mapFragment = new MapFragment();
+                return mapFragment;
             default:
                 return null;
         }

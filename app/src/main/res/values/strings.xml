@@ -1,6 +1,8 @@
 <resources>
 
     <string name="app_name">ATMFinder</string>
+    <string name="developer_name">Thinktanki Apps</string>
+    <string name="no_data_available">No ATMs are available Nearby,\nTry with different location or range</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>

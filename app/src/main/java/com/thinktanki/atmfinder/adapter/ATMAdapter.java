@@ -1,4 +1,4 @@
-package com.thinktanki.atmfinder.listview;
+package com.thinktanki.atmfinder.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.thinktanki.atmfinder.DetailActivity;
+import com.thinktanki.atmfinder.atm.DetailActivity;
 import com.thinktanki.atmfinder.R;
 import com.thinktanki.atmfinder.atm.ATM;
 

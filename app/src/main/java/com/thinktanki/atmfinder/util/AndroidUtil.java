@@ -104,7 +104,7 @@ public class AndroidUtil {
         popupWindow.setOutsideTouchable(true);
         popupWindow.setFocusable(true);
         // Removes default background.
-        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popupWindow.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(R.color.tabColor)));
         popupWindow.showAtLocation(linearLayout, Gravity.CENTER, 0, 0);
     }
 

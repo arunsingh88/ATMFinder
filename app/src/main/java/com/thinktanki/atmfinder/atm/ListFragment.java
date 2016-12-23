@@ -21,26 +21,30 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.MultiAutoCompleteTextView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thinktanki.atmfinder.util.DataProvider;
 import com.thinktanki.atmfinder.R;
-import com.thinktanki.atmfinder.listview.ATMAdapter;
-import com.thinktanki.atmfinder.listview.RecyclerViewDecoration;
+import com.thinktanki.atmfinder.adapter.ATMAdapter;
+import com.thinktanki.atmfinder.adapter.RecyclerViewDecoration;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ATMlistView extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener, SharedPreferences.OnSharedPreferenceChangeListener {
-    private final String TAG = ATMlistView.class.getSimpleName();
+public class ListFragment extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener, SharedPreferences.OnSharedPreferenceChangeListener {
+    private final String TAG = ListFragment.class.getSimpleName();
     private List<ATM> atmList;
     private RecyclerView recyclerView;
+    private TextView emptyView;
     private ATMAdapter atmAdapter;
     private DataProvider dataProvider;
     private String latitude, lat_dest;
@@ -55,7 +59,7 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
     private SwipeRefreshLayout swipeRefreshLayout;
     private int previousSelected = -1;
 
-    public ATMlistView() {
+    public ListFragment() {
     }
 
     @Override
@@ -72,8 +76,10 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
 
         dataProvider=new DataProvider(getActivity());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        emptyView = (TextView) rootView.findViewById(R.id.empty_view);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
+
 
         atmList = new ArrayList<ATM>();
         atmAdapter = new ATMAdapter(atmList, getActivity());
@@ -84,8 +90,8 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
         recyclerView.addItemDecoration(new RecyclerViewDecoration(getActivity(), LinearLayoutManager.VERTICAL));
 
         recyclerView.setAdapter(atmAdapter);
-        atmAdapter.notifyDataSetChanged();
         prepareATMList();
+        atmAdapter.notifyDataSetChanged();
         return rootView;
     }
 
@@ -172,6 +178,9 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         prepareATMList();
+        atmAdapter = new ATMAdapter(atmList, getActivity());
+        recyclerView.setAdapter(atmAdapter);
+        atmAdapter.notifyDataSetChanged();
     }
 
     private class ATMData extends AsyncTask<String, Void, String> {
@@ -198,6 +207,14 @@ public class ATMlistView extends Fragment implements SearchView.OnQueryTextListe
             super.onPostExecute(result);
             pd.dismiss();
             addToATMList(result);
+            if (atmList.isEmpty()) {
+                recyclerView.setVisibility(View.GONE);
+                emptyView.setVisibility(View.VISIBLE);
+            }
+            else {
+                recyclerView.setVisibility(View.VISIBLE);
+                emptyView.setVisibility(View.GONE);
+            }
             swipeRefreshLayout.setRefreshing(false);
         }
     }

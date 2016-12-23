@@ -4,7 +4,6 @@
     android:id="@+id/rl_custom_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/popup_window"
     android:padding="2dp"
 
     >
@@ -24,6 +23,5 @@
         android:layout_height="350dp"
         android:padding="@dimen/activity_vertical_margin"
         android:layout_centerInParent="true"
-        android:textColor="@android:color/white"
         android:typeface="serif" />
 </RelativeLayout>
