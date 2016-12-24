@@ -26,7 +26,6 @@
     <string name="main_activity_page_footer">ca-app-pub-6264665505773691/6073718967</string>
     <string name="atm_detail_page_footer">ca-app-pub-6264665505773691/7550452167</string>
 
-
     <!--Dialog box for sorting-->
     <array name="sortArrayList">
         <item>Nearest ATM First</item>
@@ -39,7 +38,7 @@
     <string name="about_app_desc"><![CDATA[
    ATMFinder is designed to find ATMs near you.<br>
    It can be customize to sort ATMs by distance from your current location.<br>
-   List view will show all the ATMs within 1 km range and it can be customised.<br>
+   List view will show all the ATMs within 1 km range and it can be customized.<br>
    User can customize range from 1 to 10 kms.<br>
    Map view will mark all the ATMs around you on a map.<br>
    User can get directions to reach the selected ATM from your location.<br>
