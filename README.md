@@ -2,7 +2,6 @@
 ATMFinder app is developed to help you to locate ATMs near your location. ATMFinder provide you ATM details like address, geo location and even directions to reach there.
 
 ATMFinder app is now available on Google Play.
-
 <a href='https://play.google.com/store/apps/details?id=com.thinktanki.atmfinder&hl=en&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width=200 /></a>
 
 # Screenshots and Demo
