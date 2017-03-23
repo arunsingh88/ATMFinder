@@ -9,10 +9,10 @@ ATMFinder app is now available on Google Play.
 
 ![solarized vim](https://cloud.githubusercontent.com/assets/18736347/24267119/48a18cde-102f-11e7-92f1-95e4d8156e74.gif)
 
-![solarized vim](https://cloud.githubusercontent.com/assets/18736347/24267357/09884fc8-1030-11e7-9197-5b4a29ebd7bc.png)
-![solarized vim](https://cloud.githubusercontent.com/assets/18736347/24267359/098e120a-1030-11e7-83a1-823fbba926f6.png)
-![solarized vim](https://cloud.githubusercontent.com/assets/18736347/24267360/098ecf10-1030-11e7-8fd9-62acbd8113ee.png)
-![solarized vim](https://cloud.githubusercontent.com/assets/18736347/24267358/098e6804-1030-11e7-877b-d5fae2d0fab3.png)
+![android screenshot 2](https://cloud.githubusercontent.com/assets/18736347/24268641/704d3526-1034-11e7-8ba0-323a37b7eb28.png)
+![android screenshot 3](https://cloud.githubusercontent.com/assets/18736347/24268642/704eefec-1034-11e7-9d20-069b4c1d1e88.png)
+![android screenshot 4](https://cloud.githubusercontent.com/assets/18736347/24268643/70518fe0-1034-11e7-818f-34d29c1825d5.png)
+![android screenshot 7](https://cloud.githubusercontent.com/assets/18736347/24268644/7053fb4a-1034-11e7-98b1-ba927b6c6012.png)
 
 # Usage
 Replace the GOOGLE_PLACE_API_KEY with your key in [Gradle.properties](https://github.com/arunpwc/ATMFinder/blob/master/gradle.properties)
