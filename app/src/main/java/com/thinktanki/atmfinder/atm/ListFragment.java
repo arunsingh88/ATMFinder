@@ -110,7 +110,9 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
 
         switch (item.getItemId()) {
             case R.id.action_search:
-                searchView.setOnQueryTextListener(this);
+                if(searchView!=null){
+                    searchView.setOnQueryTextListener(this);
+                }
                 return true;
 
             case R.id.action_sort:
