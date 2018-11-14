@@ -49,7 +49,7 @@ public class DataProvider {
         return response;
     }
 
-    public String ATMData(String latitude, String longitude, String radius) {
+    public String ATMData(String latitude, String longitude, String radius, String type) {
         String atmList = null;
         final String GOOGLE_PLACE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
         final String RADIUS = "radius";
@@ -60,7 +60,7 @@ public class DataProvider {
             Uri builtUri = Uri.parse(GOOGLE_PLACE_URL).buildUpon()
                     .appendQueryParameter(CURRENT_LOCATION, latitude + "," + longitude)
                     .appendQueryParameter(RADIUS, radius)
-                    .appendQueryParameter(TYPE, "atm")
+                    .appendQueryParameter(TYPE, type)
                     .appendQueryParameter(API_KEY,context.getResources().getString(R.string.GOOGLE_PLACE_API_KEY) )
                     .build();
 

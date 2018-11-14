@@ -53,6 +53,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private int noOfATM;
     private String atmName;
     private String atmAddress;
+    private String icon;
     private MapView mapView;
     private GoogleMap mMap;
     private List<ATM> atmList;
@@ -65,6 +66,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
     private SharedPreferences sharedPreferences;
     private Intent intent;
     private Activity mapActivity;
+    private Float distanceInKms;
 
 
     public MapFragment() {
@@ -93,7 +95,8 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         seekBar = (SeekBar) rootView.findViewById(R.id.seekBar);
         seekBar.setProgress(Integer.parseInt(RADIUS) / 1000);
         radiusOfArea = (TextView) rootView.findViewById(R.id.textView);
-        radiusOfArea.setText("ATMs within the range of " + Integer.parseInt(RADIUS) / 1000 + " kms.");
+        radiusOfArea.setText("ATMs/Bank within the range of " + Integer.parseInt(RADIUS) / 1000 + " kms.");
+
 
         seekBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -104,7 +107,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                radiusOfArea.setText("ATMs within the range of " + progress + " kms.");
+                radiusOfArea.setText("ATMs/Bank within the range of " + progress + " kms.");
                 progressChanged = progress;
             }
 
@@ -149,11 +152,18 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
                     public void onInfoWindowClick(Marker marker) {
                         /*Start Detail Activity when user click on ATM Marker*/
                         if (!marker.getTitle().equalsIgnoreCase(mapActivity.getResources().getString(R.string.marker_you))) {
+
                             intent = new Intent(mapActivity, DetailActivity.class);
                             intent.putExtra("ATM_NAME", marker.getTitle());
                             intent.putExtra("ATM_ADDRESS", marker.getSnippet());
                             intent.putExtra("LATITUDE", marker.getPosition().latitude);
                             intent.putExtra("LONGITUDE", marker.getPosition().longitude);
+                            intent.putExtra("TYPE","type");
+
+
+                            distanceInKms = dataProvider.distanceInKm(Double.toString(marker.getPosition().latitude), Double.toString(marker.getPosition().longitude), lat_dest, lng_dest);
+
+                            intent.putExtra("DISTANCE", Float.toString(distanceInKms));
 
                             mapActivity.startActivity(intent);
                         }
@@ -224,7 +234,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
         new ATMData().execute(latitude, longitude, RADIUS);
         seekBar.setProgress(Integer.parseInt(RADIUS) / 1000);
-        radiusOfArea.setText("ATMs within the range of " + Integer.parseInt(RADIUS) / 1000 + " kms.");
+        radiusOfArea.setText("ATMs/Bank within the range of " + Integer.parseInt(RADIUS) / 1000 + " kms.");
     }
 
     /*@Override
@@ -243,7 +253,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
         protected void onPreExecute() {
             super.onPreExecute();
             pd = new ProgressDialog(mapActivity);
-            pd.setMessage(getResources().getString(R.string.loader_message));
+            pd.setMessage(getResources().getString(R.string.map_loader_message));
             pd.show();
         }
 
@@ -254,7 +264,7 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
             String radius = params[2];
 
             /*Fetching ATM List from Google API Server*/
-            String atmData = dataProvider.ATMData(latitude, longitude, radius);
+            String atmData = dataProvider.ATMData(latitude, longitude, radius, "atm|bank");
             return atmData;
         }
 
@@ -284,7 +294,12 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
                 String title = atmList.get(i).getAtmName();
                 String address = atmList.get(i).getAtmAddress();
-                markers.add(mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_atm_marker)).position(marker).title(title).snippet(address)));
+                String icon = atmList.get(i).getIcon();
+                if (icon.contains("bank")) {
+                    markers.add(mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bank_marker)).position(marker).title(title).snippet(address)));
+                } else {
+                    markers.add(mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_atm_marker)).position(marker).title(title).snippet(address)));
+                }
 
             }
 
@@ -321,17 +336,22 @@ public class MapFragment extends Fragment implements SharedPreferences.OnSharedP
 
                 /*Adding ATM details in List*/
                 for (int i = 0; i < noOfATM; i++) {
+                    icon = jsonArray.getJSONObject(i).getString("icon");
                     atmName = jsonArray.getJSONObject(i).getString("name");
                     atmAddress = jsonArray.getJSONObject(i).getString("vicinity");
                     lat_dest = jsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lat");
                     lng_dest = jsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lng");
+
                     atmObj = new ATM();
                     atmObj.setAtmName(atmName);
+                    atmObj.setIcon(icon);
                     atmObj.setAtmAddress(atmAddress);
                     atmObj.setLatitude(Double.parseDouble(lat_dest));
                     atmObj.setLongitude(Double.parseDouble(lng_dest));
+                    distanceInKms = dataProvider.distanceInKm(latitude, longitude, lat_dest, lng_dest);
 
                     if (!atmList.contains(atmObj))
+
                         atmList.add(atmObj);
                 }
                 Log.v(TAG + "MAPVIEW_ARRAY", atmList.toString());

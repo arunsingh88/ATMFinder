@@ -7,7 +7,8 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import com.thinktanki.atmfinder.atm.ListFragment;
+import com.thinktanki.atmfinder.atm.ATMFragment;
+import com.thinktanki.atmfinder.atm.BankFragment;
 import com.thinktanki.atmfinder.atm.MapFragment;
 
 import java.lang.ref.WeakReference;
@@ -28,9 +29,12 @@ public class FragmentViewPager extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                ListFragment listFragment = new ListFragment();
-                return listFragment;
+                ATMFragment ATMFragment = new ATMFragment();
+                return ATMFragment;
             case 1:
+                BankFragment bankFragment = new BankFragment();
+                return bankFragment;
+            case 2:
                 MapFragment mapFragment = new MapFragment();
                 return mapFragment;
             default:

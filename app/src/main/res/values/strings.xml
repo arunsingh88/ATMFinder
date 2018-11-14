@@ -7,10 +7,13 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
     <string name="sort_dialog_box_title">Filter your search</string>
-    <string name="list_view">LIST VIEW</string>
+    <string name="atm_view">ATM</string>
+    <string name="bank_view">BANK</string>
     <string name="map_view">MAP VIEW</string>
     <string name="range">Select Range</string>
-    <string name="loader_message">Fetching ATM Details..</string>
+    <string name="atm_loader_message">Fetching ATM Details..</string>
+    <string name="bank_loader_message">Fetching Bank Details..</string>
+    <string name="map_loader_message">Fetching Bank/ATMs Details..</string>
     <string name="ok">OK</string>
     <string name="cancel">CANCEL</string>
     <string name="sort_dialog_box_title_error">Please select some option</string>
@@ -25,11 +28,21 @@
     <string name="admob_app_id">ca-app-pub-6264665505773691~4596985763</string>
     <string name="main_activity_page_footer">ca-app-pub-6264665505773691/6073718967</string>
     <string name="atm_detail_page_footer">ca-app-pub-6264665505773691/7550452167</string>
+    <string name="fullpage_ad">ca-app-pub-6264665505773691/5751521024</string>
+
 
     <!--Dialog box for sorting-->
     <array name="sortArrayList">
         <item>Nearest ATM First</item>
         <item>Farthest ATM First</item>
+        <item>Alphabetical Order</item>
+        <item>Reverse Alphabetical Order</item>
+    </array>
+
+    <!--Dialog box for sorting-->
+    <array name="sortBankArrayList">
+        <item>Nearest Bank First</item>
+        <item>Farthest Bank First</item>
         <item>Alphabetical Order</item>
         <item>Reverse Alphabetical Order</item>
     </array>
@@ -46,4 +59,7 @@
    <b>Version:</b>1.0.0
    ]]>
     </string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

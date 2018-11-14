@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,6 +31,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -50,6 +53,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private String TAG = DetailActivity.class.getSimpleName();
     private MapView detailMapview;
+    private String type;
     private TextView atmAddress, atmDistance;
     private AdView adView;
     private AdRequest adRequest;
@@ -64,7 +68,8 @@ public class DetailActivity extends AppCompatActivity {
     private String nameATM, addressATM;
     private final Handler refreshHandler = new Handler();
     private final Runnable refreshRunnable = new RefreshRunnable();
-    private final int REFRESH_RATE_IN_SECONDS = 5;
+    private final int REFRESH_RATE_IN_SECONDS = 1;
+    private InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,15 +80,17 @@ public class DetailActivity extends AppCompatActivity {
 
         bundle = getIntent().getExtras();
         if (bundle != null) {
+            type = bundle.getString("TYPE");
             nameATM = bundle.getString("ATM_NAME");
             addressATM = bundle.getString("ATM_ADDRESS");
             Double doubleLat = bundle.getDouble("LATITUDE");
             Double doubleLng = bundle.getDouble("LONGITUDE");
             destLat = doubleLat.toString();
             destLng = doubleLng.toString();
+            distance = bundle.getString("DISTANCE");
         }
 
-        dataProvider=new DataProvider(this);
+        dataProvider = new DataProvider(this);
 
         setTitle(nameATM);
         /*Initilize View*/
@@ -121,28 +128,93 @@ public class DetailActivity extends AppCompatActivity {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.setPackage("com.google.android.apps.maps");
-                        if(!currentLat.equalsIgnoreCase(String.valueOf(marker.getPosition().latitude)))
-                        startActivity(intent);
+                        if (!currentLat.equalsIgnoreCase(String.valueOf(marker.getPosition().latitude)))
+                            startActivity(intent);
                         return false;
                     }
                 });
-                new ATMRoute().execute(currentLat, currentLng, destLat, destLng);
+
+                currentPosition = new LatLng(Double.parseDouble(currentLat), Double.parseDouble(currentLng));
+                destPosition = new LatLng(Double.parseDouble(destLat), Double.parseDouble(destLng));
+
+                List<Marker> marker = new ArrayList<Marker>();
+                mMap.addMarker(new MarkerOptions().position(currentPosition).title(getResources().getString(R.string.marker_you)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_me))).showInfoWindow();
+
+                marker.add(mMap.addMarker(new MarkerOptions().position(currentPosition).title(getResources().getString(R.string.marker_you)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_me))));
+                if(type.equalsIgnoreCase("atm")) {
+                    marker.add(mMap.addMarker(new MarkerOptions().position(destPosition).title(nameATM).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_atm_marker)).snippet(addressATM)));
+                }
+                else
+                {
+                    marker.add(mMap.addMarker(new MarkerOptions().position(destPosition).title(nameATM).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bank_marker)).snippet(addressATM)));
+
+                }
+
+
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                for (Marker markers : marker) {
+                    builder.include(markers.getPosition());
+                }
+
+
+                LatLngBounds bounds = builder.build();
+                int width = getResources().getDisplayMetrics().widthPixels;
+                int height = getResources().getDisplayMetrics().heightPixels;
+                int padding = (int) (width * 0.30);
+
+                LatLng currentPos = new LatLng(Double.parseDouble(currentLat), Double.parseDouble(currentLng));
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+                CircleOptions circleOptions = new CircleOptions().center(currentPos).radius(Double.parseDouble(distance)).strokeWidth(3)
+                        .strokeColor(Color.BLUE);
+                mMap.addCircle(circleOptions);
+                mMap.moveCamera(cameraUpdate);
+
+                drawRoute(currentPosition,destPosition);
+
+                //atmName.setText(nameATM);
+                atmAddress.setText(addressATM);
+
+                if (type.equalsIgnoreCase("atm")) {
+                    atmDistance.setText("This ATM is " + distance + " km from you.");
+                }
+                else if (type.equalsIgnoreCase("bank"))
+                {
+                    atmDistance.setText("This BANK is " + distance + " km from you.");
+                }
+                else
+                {
+                    atmDistance.setText("This BANK/ATM is " + distance + " km from you.");
+                }
+                if (mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.show();
+                    Log.d("TAG", "The interstitial loaded.");
+                } else {
+                    Log.d("TAG", "The interstitial wasn't loaded yet.");
+                }
+
+                //new ATMRoute().execute(currentLat, currentLng, destLat, destLng);
             }
         });
 
         /*Initilialize Advertisement*/
         adView = (AdView) findViewById(R.id.adViewActivity);
         adView.setVisibility(View.GONE);
+
         // Initialize the Mobile Ads SDK.
-        MobileAds.initialize(this, getResources().getString(R.string.atm_detail_page_footer));
+        //MobileAds.initialize(this, getResources().getString(R.string.atm_detail_page_footer));
         adRequest = new AdRequest.Builder().build();
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getResources().getString(R.string.fullpage_ad));
+        mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("110A4DDA99F50844536842DEDAF9DB32").build());
+
 
         adView.loadAd(adRequest);
         adView.setAdListener(new AdListener() {
             @Override
             public void onAdFailedToLoad(int i) {
                 super.onAdFailedToLoad(i);
-                adView.setVisibility(View.GONE);
+                //adView.setVisibility(View.GONE);
                 refreshHandler.removeCallbacks(refreshRunnable);
                 refreshHandler.postDelayed(refreshRunnable, REFRESH_RATE_IN_SECONDS * 1000);
             }
@@ -174,7 +246,7 @@ public class DetailActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             pd = new ProgressDialog(DetailActivity.this);
-            pd.setMessage(getResources().getString(R.string.loader_message));
+            pd.setMessage(getResources().getString(R.string.atm_loader_message));
             pd.show();
         }
 
@@ -233,6 +305,7 @@ public class DetailActivity extends AppCompatActivity {
             atmDistance.setText("This ATM is " + distance + " from you.");
 
             pd.dismiss();
+
         }
     }
 
@@ -269,4 +342,19 @@ public class DetailActivity extends AppCompatActivity {
             adView.loadAd(adRequest);
         }
     }
+
+    private void drawRoute(LatLng currentPosition,LatLng destPosition){
+        ArrayList<LatLng> points = new ArrayList<LatLng>();
+        PolylineOptions lineOptions = new PolylineOptions();
+        points.add(currentPosition);
+        points.add(destPosition);
+
+        // Adding all the points in the route to LineOptions
+        lineOptions.addAll(points);
+        lineOptions.width(7);
+        lineOptions.color(getResources().getColor(R.color.colorPrimaryDark));
+        mMap.addPolyline(lineOptions);
+
+    }
 }
+

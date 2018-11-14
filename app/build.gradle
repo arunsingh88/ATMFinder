@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "com.thinktanki.atmfinder"
         minSdkVersion 15
-        targetSdkVersion 25
-        versionCode 2
-        versionName "1.0.1"
+        targetSdkVersion 28
+        versionCode 4
+        versionName "1.0.4"
     }
     buildTypes {
         debug {
@@ -26,19 +26,19 @@ android {
 
     }
     buildTypes.each {
-        it.resValue  "string", 'GOOGLE_PLACE_API_KEY', googlePlaceAPIKey
+        it.resValue "string", 'GOOGLE_PLACE_API_KEY', googlePlaceAPIKey
     }
 
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.google.android.gms:play-services-maps:9.4.0'
-    compile 'com.google.android.gms:play-services-places:9.4.0'
-    compile 'com.google.firebase:firebase-ads:9.4.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
+    implementation 'com.google.android.gms:play-services-places:16.0.0'
+    implementation 'com.google.android.gms:play-services-ads:16.0.0'
 }

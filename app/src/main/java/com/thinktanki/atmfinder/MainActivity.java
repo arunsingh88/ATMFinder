@@ -17,7 +17,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
@@ -30,7 +29,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
-import com.thinktanki.atmfinder.atm.ListFragment;
+import com.thinktanki.atmfinder.atm.ATMFragment;
 import com.thinktanki.atmfinder.util.AndroidUtil;
 import com.thinktanki.atmfinder.adapter.FragmentViewPager;
 
@@ -46,9 +45,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final Handler refreshHandler = new Handler();
     private final Runnable refreshRunnable = new RefreshRunnable();
     private AdRequest adRequest;
-    private int REFRESH_RATE_IN_SECONDS = 5;
-    private final int MAP_VIEW = 1;
-    private final int LIST_VIEW = 0;
+    private int REFRESH_RATE_IN_SECONDS = 1;
+    private final int MAP_VIEW = 2;
+    private final int ATM_VIEW = 0;
+    private final int BANK_VIEW = 1;
     private AndroidUtil androidUtil;
     private final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private SharedPreferences sharedPreferences;
@@ -66,16 +66,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setTitle(getResources().getString(R.string.app_name));
         adView = (AdView) findViewById(R.id.adViewActivity);
         adView.setVisibility(View.GONE);
+
         // Initialize the Mobile Ads SDK.
         MobileAds.initialize(this, getResources().getString(R.string.admob_app_id));
-        adRequest = new AdRequest.Builder()/*.addTestDevice("196FCE962C3DC7551A19FD25FC8543D0")*/.build();
-
+        adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
+
         adView.setAdListener(new AdListener() {
             @Override
             public void onAdFailedToLoad(int i) {
                 super.onAdFailedToLoad(i);
-                adView.setVisibility(View.GONE);
+                //adView.setVisibility(View.GONE);
                 refreshHandler.removeCallbacks(refreshRunnable);
                 refreshHandler.postDelayed(refreshRunnable, REFRESH_RATE_IN_SECONDS * 1000);
             }
@@ -109,7 +110,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void setupViewPager(ViewPager viewPager) {
         ArrayList<String> tabs = new ArrayList<>();
-        tabs.add(getResources().getString(R.string.list_view));
+        tabs.add(getResources().getString(R.string.atm_view));
+        tabs.add(getResources().getString(R.string.bank_view));
         tabs.add(getResources().getString(R.string.map_view));
         adapter = new FragmentViewPager(getSupportFragmentManager(), tabs);
         viewPager.setAdapter(adapter);
@@ -122,8 +124,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.map_view) {
             viewPager.setCurrentItem(MAP_VIEW, true);
 
-        } else if (id == R.id.list_view) {
-            viewPager.setCurrentItem(LIST_VIEW, true);
+        } else if (id == R.id.atm_view) {
+            viewPager.setCurrentItem(ATM_VIEW, true);
+
+        } else if (id == R.id.bank_view) {
+            viewPager.setCurrentItem(BANK_VIEW, true);
 
         } else if (id == R.id.search_location) {
             startActivityForResult(placePickerIntent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
@@ -135,8 +140,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             androidUtil.updateCurrentLocation();
 
         } else if (id == R.id.nav_sort) {
-            Fragment fragment = adapter.getFragment(LIST_VIEW);
-            ((ListFragment) fragment).createDialogBox();
+            Fragment fragment = adapter.getFragment(ATM_VIEW);
+            ((ATMFragment) fragment).createDialogBox();
 
         } else if (id == R.id.nav_radius) {
             androidUtil.changeRadius();

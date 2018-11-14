@@ -3,13 +3,17 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/atm_view"
+            android:icon="@drawable/ic_menu_list"
+            android:title="ATMs" />
+        <item
+            android:id="@+id/bank_view"
+            android:icon="@drawable/ic_menu_list"
+            android:title="Bank" />
+        <item
             android:id="@+id/map_view"
             android:icon="@drawable/ic_menu_map"
             android:title="Map View" />
-        <item
-            android:id="@+id/list_view"
-            android:icon="@drawable/ic_menu_list"
-            android:title="List View" />
         <item
             android:id="@+id/search_location"
             android:icon="@drawable/ic_menu_location"

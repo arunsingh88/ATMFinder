@@ -22,8 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.MultiAutoCompleteTextView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thinktanki.atmfinder.util.DataProvider;
@@ -34,15 +32,14 @@ import com.thinktanki.atmfinder.adapter.RecyclerViewDecoration;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ListFragment extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener, SharedPreferences.OnSharedPreferenceChangeListener {
-    private final String TAG = ListFragment.class.getSimpleName();
+public class BankFragment extends Fragment implements SearchView.OnQueryTextListener, SwipeRefreshLayout.OnRefreshListener, SharedPreferences.OnSharedPreferenceChangeListener {
+    private final String TAG = BankFragment.class.getSimpleName();
     private List<ATM> atmList;
     private RecyclerView recyclerView;
     private LinearLayout emptyView;
@@ -51,6 +48,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
     private String latitude, lat_dest;
     private String longitude, lng_dest;
     private String atmName, atmAddress;
+    private String icon;
     private Float distanceInKms;
     private int noOfATMs;
     private String RADIUS;
@@ -60,7 +58,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
     private SwipeRefreshLayout swipeRefreshLayout;
     private int previousSelected = -1;
 
-    public ListFragment() {
+    public BankFragment() {
     }
 
     @Override
@@ -73,7 +71,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_atmlist_view, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_bank_frgament, container, false);
 
         dataProvider = new DataProvider(getActivity());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
@@ -83,7 +81,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
 
 
         atmList = new ArrayList<ATM>();
-        atmAdapter = new ATMAdapter(atmList, getActivity());
+        atmAdapter = new ATMAdapter(atmList, getActivity(),"bank");
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -110,7 +108,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
 
         switch (item.getItemId()) {
             case R.id.action_search:
-                if(searchView!=null){
+                if (searchView != null) {
                     searchView.setOnQueryTextListener(this);
                 }
                 return true;
@@ -167,7 +165,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
                 filteredList.add(atmList.get(i));
             }
         }
-        atmAdapter = new ATMAdapter(filteredList, getActivity());
+        atmAdapter = new ATMAdapter(filteredList, getActivity(),"bank");
         recyclerView.setAdapter(atmAdapter);
         atmAdapter.notifyDataSetChanged();
         return false;
@@ -181,7 +179,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         prepareATMList();
-        atmAdapter = new ATMAdapter(atmList, getActivity());
+        atmAdapter = new ATMAdapter(atmList, getActivity(),"bank");
         recyclerView.setAdapter(atmAdapter);
         atmAdapter.notifyDataSetChanged();
     }
@@ -193,7 +191,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
         protected void onPreExecute() {
             super.onPreExecute();
             pd = new ProgressDialog(getActivity());
-            pd.setMessage(getResources().getString(R.string.loader_message));
+            pd.setMessage(getResources().getString(R.string.bank_loader_message));
             pd.show();
         }
 
@@ -202,7 +200,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
             String lat = params[0];
             String lng = params[1];
             String radius = params[2];
-            return dataProvider.ATMData(lat, lng, radius);
+            return dataProvider.ATMData(lat, lng, radius, "bank");
         }
 
         @Override
@@ -234,6 +232,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
                 for (int i = 0; i < noOfATMs; i++) {
 
                     atmName = jsonArray.getJSONObject(i).getString("name");
+                    icon = jsonArray.getJSONObject(i).getString("icon");
                     atmAddress = jsonArray.getJSONObject(i).getString("vicinity");
                     lat_dest = jsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lat");
                     lng_dest = jsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lng");
@@ -244,13 +243,16 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
                     atmObj.setAtmAddress(atmAddress);
                     atmObj.setLatitude(Double.parseDouble(lat_dest));
                     atmObj.setLongitude(Double.parseDouble(lng_dest));
+                    atmObj.setIcon(icon);
 
                     distanceInKms = dataProvider.distanceInKm(latitude, longitude, lat_dest, lng_dest);
                     atmObj.setDistance(distanceInKms);
 
                     /*Adding ATM Object to ATM list*/
                     if (!atmList.contains(atmObj))
-                        atmList.add(atmObj);
+                        if (atmObj.getIcon().contains("bank")) {
+                            atmList.add(atmObj);
+                        }
                 }
                 Collections.sort(atmList, new Comparator<ATM>() {
                     @Override
@@ -270,7 +272,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
     }
 
     public void createDialogBox() {
-        final String sort[] = getResources().getStringArray(R.array.sortArrayList);
+        final String sort[] = getResources().getStringArray(R.array.sortBankArrayList);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // Set the dialog title
         builder.setTitle(getResources().getString(R.string.sort_dialog_box_title))
@@ -290,7 +292,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
                                     return atm1.getDistance().compareTo(atm2.getDistance());
                                 }
                             });
-                            atmAdapter = new ATMAdapter(atmList, getActivity());
+                            atmAdapter = new ATMAdapter(atmList, getActivity(),"bank");
                             recyclerView.setAdapter(atmAdapter);
                             atmAdapter.notifyDataSetChanged();
                         } else if (previousSelected == 1) {
@@ -300,7 +302,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
                                     return atm2.getDistance().compareTo(atm1.getDistance());
                                 }
                             });
-                            atmAdapter = new ATMAdapter(atmList, getActivity());
+                            atmAdapter = new ATMAdapter(atmList, getActivity(),"bank");
                             recyclerView.setAdapter(atmAdapter);
                             atmAdapter.notifyDataSetChanged();
 
@@ -311,7 +313,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
                                     return atm1.getAtmName().compareToIgnoreCase(atm2.getAtmName());
                                 }
                             });
-                            atmAdapter = new ATMAdapter(atmList, getActivity());
+                            atmAdapter = new ATMAdapter(atmList, getActivity(),"bank");
                             recyclerView.setAdapter(atmAdapter);
                             atmAdapter.notifyDataSetChanged();
 
@@ -322,7 +324,7 @@ public class ListFragment extends Fragment implements SearchView.OnQueryTextList
                                     return atm2.getAtmName().compareToIgnoreCase(atm1.getAtmName());
                                 }
                             });
-                            atmAdapter = new ATMAdapter(atmList, getActivity());
+                            atmAdapter = new ATMAdapter(atmList, getActivity(),"bank");
                             recyclerView.setAdapter(atmAdapter);
                             atmAdapter.notifyDataSetChanged();
                         } else {

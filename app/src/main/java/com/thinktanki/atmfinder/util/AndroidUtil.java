@@ -122,7 +122,7 @@ public class AndroidUtil {
 
         /*Initilize the view for Dialog Box*/
         final TextView tv = (TextView) layout.findViewById(R.id.txtViewRadius);
-        tv.setText("ATMs within the range of " + Integer.parseInt(RADIUS[0]) / 1000 + " kms.");
+        tv.setText("ATMs/Bank within the range of " + Integer.parseInt(RADIUS[0]) / 1000 + " kms.");
 
         SeekBar sb = (SeekBar) layout.findViewById(R.id.seekBarRadius);
         sb.setMax(10);
@@ -138,7 +138,7 @@ public class AndroidUtil {
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 progressBar = progress;
-                tv.setText("ATMs within the range of " + progressBar + " kms.");
+                tv.setText("ATMs/Bank within the range of " + progressBar + " kms.");
             }
 
             @Override

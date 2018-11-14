@@ -9,6 +9,16 @@ public class ATM {
     private String atmAddress;
     private double latitude;
     private double longitude;
+    private String icon;
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
 
     public String getAtmName() {
         return atmName;
