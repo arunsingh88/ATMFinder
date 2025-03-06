@@ -1,4 +1,4 @@
-# ATMFinder
+## ATMFinder
 ATMFinder app is developed to help you to locate ATMs near your location. ATMFinder provide you ATM details like address, geo location and even directions to reach there.
 
 ATMFinder app is now available on Google Play.
